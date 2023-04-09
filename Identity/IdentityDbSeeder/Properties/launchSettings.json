@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "IdentityDbSeeder": {
+      "commandName": "Project",
+      "commandLineArgs": "--drop",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

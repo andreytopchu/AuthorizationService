@@ -1,0 +1,4 @@
+﻿docker run --name postgres-db -p 5432:5432 -e POSTGRES_PASSWORD=my-pass~003 -d postgres
+
+dotnet ef migrations add InitPersistedGrantDbContext --context PersistedGrantDbContext -o Migrations\PersistedGrantDb\
+dotnet ef migrations add InitConfigurationDbContext --context ConfigurationDbContext -o Migrations\ConfigurationDb\
