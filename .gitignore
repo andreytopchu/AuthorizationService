@@ -8,6 +8,7 @@
 /contentModel.xml
 **/.idea/**
 **/obj/**
+**/bin/**
 # Editor-based HTTP Client requests
 /httpRequests/
 # Datasource local storage ignored files
