@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Shared.BaseDbSeeder.Seeder
+namespace IdentityDbSeeder.Seeder
 {
     public interface IDbSeeder
     {

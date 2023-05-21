@@ -1,4 +1,4 @@
-﻿using Identity.Application.Abstractions;
+﻿using Identity.Application.Abstractions.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Identity.Services.Extensions;

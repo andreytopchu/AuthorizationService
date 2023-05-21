@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Threading.Tasks;
+using Identity.Application.Abstractions.Exceptions;
 using Identity.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -90,6 +91,7 @@ namespace Identity.ExceptionFilter
 
                 // 409
                 DbUpdateConcurrencyException _ => Status409Conflict,
+                AlreadyExistException _ => Status409Conflict,
 
                 // 408
                 RetryLimitExceededException _ => Status408RequestTimeout,

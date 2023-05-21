@@ -1,12 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
 using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Identity.Application.Abstractions;
-using Identity.Application.Abstractions.Models;
+using Identity.Application.Abstractions.Models.Authorization;
+using Identity.Application.Abstractions.Services;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Events;
@@ -59,12 +57,6 @@ namespace Identity.Controllers.Account
             // build a model so we know what to show on the login page
             var vm = await BuildLoginViewModelAsync(returnUrl);
 
-            if (vm.IsExternalLoginOnly)
-            {
-                // we only have one option for logging in and it's an external provider
-                return RedirectToAction("Challenge", "External", new { scheme = vm.ExternalLoginScheme, returnUrl });
-            }
-
             return View(vm);
         }
 
@@ -108,7 +100,7 @@ namespace Identity.Controllers.Account
             if (ModelState.IsValid)
             {
                 var authResult = await _userStoreService.ValidateCredentials(
-                    new Credential { Username = model.Username, Password = model.Password, ClientId = "web.client" });
+                    new Credential {Username = model.Username, Password = model.Password, ClientId = "web.client"});
 
                 if (authResult.Success)
                 {
@@ -175,7 +167,6 @@ namespace Identity.Controllers.Account
             return View(vm);
         }
 
-
         /// <summary>
         /// Show logout page
         /// </summary>
@@ -220,10 +211,10 @@ namespace Identity.Controllers.Account
                 // build a return URL so the upstream provider will redirect back
                 // to us after the user has logged out. this allows us to then
                 // complete our single sign-out processing.
-                string url = Url.Action("Logout", new { logoutId = vm.LogoutId });
+                string url = Url.Action("Logout", new {logoutId = vm.LogoutId});
 
                 // this triggers a redirect to the external provider for sign-out
-                return SignOut(new AuthenticationProperties { RedirectUri = url }, vm.ExternalAuthenticationScheme);
+                return SignOut(new AuthenticationProperties {RedirectUri = url}, vm.ExternalAuthenticationScheme);
             }
 
             return View("LoggedOut", vm);
@@ -234,7 +225,6 @@ namespace Identity.Controllers.Account
         {
             return View();
         }
-
 
         /*****************************************/
         /* helper APIs for the AccountController */
@@ -251,26 +241,13 @@ namespace Identity.Controllers.Account
                 {
                     EnableLocalLogin = local,
                     ReturnUrl = returnUrl,
-                    Username = context?.LoginHint,
+                    Username = context.LoginHint,
                 };
-
-                if (!local)
-                {
-                    vm.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
-                }
 
                 return vm;
             }
 
             var schemes = await _schemeProvider.GetAllSchemesAsync();
-
-            var providers = schemes
-                .Where(x => x.DisplayName != null)
-                .Select(x => new ExternalProvider
-                {
-                    DisplayName = x.DisplayName ?? x.Name,
-                    AuthenticationScheme = x.Name
-                }).ToList();
 
             var allowLocal = true;
             if (context?.Client.ClientId != null)
@@ -279,12 +256,6 @@ namespace Identity.Controllers.Account
                 if (client != null)
                 {
                     allowLocal = client.EnableLocalLogin;
-
-                    if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
-                    {
-                        providers = providers.Where(provider =>
-                            client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
-                    }
                 }
             }
 
@@ -293,8 +264,7 @@ namespace Identity.Controllers.Account
                 AllowRememberLogin = AccountOptions.AllowRememberLogin,
                 EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
                 ReturnUrl = returnUrl,
-                Username = context?.LoginHint,
-                ExternalProviders = providers.ToArray()
+                Username = context.LoginHint
             };
         }
 
@@ -308,7 +278,7 @@ namespace Identity.Controllers.Account
 
         private async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId)
         {
-            var vm = new LogoutViewModel { LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt };
+            var vm = new LogoutViewModel {LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt};
 
             if (User?.Identity.IsAuthenticated != true)
             {

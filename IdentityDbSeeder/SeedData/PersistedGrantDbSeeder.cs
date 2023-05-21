@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
+using IdentityDbSeeder.Seeder;
 using IdentityServer4.EntityFramework.DbContexts;
-using Shared.BaseDbSeeder.Seeder;
 
 namespace IdentityDbSeeder.SeedData
 {

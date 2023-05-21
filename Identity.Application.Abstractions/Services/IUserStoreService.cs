@@ -1,6 +1,6 @@
-using Identity.Application.Abstractions.Models;
+using Identity.Application.Abstractions.Models.Authorization;
 
-namespace Identity.Application.Abstractions;
+namespace Identity.Application.Abstractions.Services;
 
 public interface IUserStoreService
 {

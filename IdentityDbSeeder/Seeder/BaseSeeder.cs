@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Serilog;
 
-namespace Shared.BaseDbSeeder.Seeder
+namespace IdentityDbSeeder.Seeder
 {
     /// <summary>
     /// Сеятель данных, начальное наполнение.

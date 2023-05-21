@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Identity.Application.Abstractions;
-using Identity.Application.Abstractions.Models;
+using Identity.Application.Abstractions.Models.Authorization;
+using Identity.Application.Abstractions.Services;
 using Identity.Options;
 using IdentityModel;
 using IdentityServer4.Validation;

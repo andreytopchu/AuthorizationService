@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using IdentityDbSeeder.Seeder;
 using IdentityServer4.EntityFramework.DbContexts;
-using Shared.BaseDbSeeder.Seeder;
+using IdentityServer4.EntityFramework.Mappers;
+using Serilog;
 
 namespace IdentityDbSeeder.SeedData
 {
@@ -10,9 +13,13 @@ namespace IdentityDbSeeder.SeedData
         {
         }
 
-        protected override Task EnsureSeedData()
+        protected override async Task EnsureSeedData()
         {
-            return Task.CompletedTask;
+            Log.Debug("IdentityResources being populated");
+            foreach (var resource in SeedConfig.IdentityResources.ToList().Where(resource => !DbContext.IdentityResources.Any(x => x.Name == resource.Name)))
+            {
+                await DbContext.IdentityResources.AddAsync(resource.ToEntity());
+            }
         }
     }
 }

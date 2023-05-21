@@ -1,4 +1,4 @@
-namespace Identity.Application.Abstractions.Models;
+namespace Identity.Application.Abstractions.Models.Authorization;
 
 public class Credential
 {

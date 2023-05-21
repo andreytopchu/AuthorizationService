@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
-namespace Shared.BaseDbSeeder.Seeder
+namespace IdentityDbSeeder.Seeder
 {
     public abstract class BaseEfSeeder<TDbContext> : BaseSeeder<TDbContext>
         where TDbContext : DbContext
@@ -41,15 +41,6 @@ namespace Shared.BaseDbSeeder.Seeder
                 await npg.OpenAsync(); // Диспозить не должны.
                 npg.ReloadTypes();
             }
-
-            // foreach (var m in DbContext.Model.GetRelationalModel().Tables)
-            // {
-            //     if (m.Schema != null && m.Schema != "public") continue;
-            //
-            //     var table = string.IsNullOrEmpty(m.Schema) ? $"\"{m.Name}\"" : $"\"{m.Schema}\".\"{m.Name}\"";
-            //     var sql = $"CREATE OR REPLACE VIEW \"v_{m.Name}\" AS SELECT * FROM {table}";
-            //     await DbContext.Database.ExecuteSqlRawAsync(sql);
-            // }
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Identity.Application.Abstractions;
-using Identity.Application.Abstractions.Models;
+using Identity.Application.Abstractions.Models.Authorization;
+using Identity.Application.Abstractions.Services;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;

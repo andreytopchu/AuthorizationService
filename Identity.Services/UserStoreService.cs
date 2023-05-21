@@ -1,5 +1,5 @@
-using Identity.Application.Abstractions;
-using Identity.Application.Abstractions.Models;
+using Identity.Application.Abstractions.Models.Authorization;
+using Identity.Application.Abstractions.Services;
 
 namespace Identity.Services;
 
