@@ -10,4 +10,14 @@
       <PackageReference Include="IdentityServer4.Storage" Version="4.1.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Models\Admin\" />
+      <Folder Include="Models\Command\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Identity.Abstractions\Identity.Abstractions.csproj" />
+      <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

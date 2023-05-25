@@ -1,4 +1,4 @@
-using Dex.Ef.Contracts.Entities;
+using Dex.Entity;
 
 namespace Identity.Domain.Entities;
 

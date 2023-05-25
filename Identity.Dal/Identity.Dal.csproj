@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Identity.Abstractions\Identity.Abstractions.csproj" />
       <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
       <ProjectReference Include="..\Identity\Identity.csproj" />
     </ItemGroup>

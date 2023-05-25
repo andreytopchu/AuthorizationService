@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Identity.Abstractions;
 using Identity.Application.Abstractions.Exceptions;
 using Identity.Dal.EntityConfigurations;
 using Identity.Dal.Extensions;
@@ -10,7 +12,7 @@ using Npgsql;
 
 namespace Identity.Dal;
 
-public class IdentityDbContext : DbContext
+public class IdentityDbContext : DbContext, IWriteDbContext, IUnitOfWork
 {
     public Task ExecuteInTransaction(IsolationLevel isolationLevel, Func<CancellationToken, Task> action,
         CancellationToken cancellationToken)
@@ -60,4 +62,9 @@ public class IdentityDbContext : DbContext
         modelBuilder.UseXminAsConcurrencyToken(this);
         modelBuilder.SetDefaultDateTimeKind(DateTimeKind.Utc);
     }
+
+    public IQueryable<TEntity> Get<TEntity>() where TEntity : class => Set<TEntity>();
+    public new object Add(object entity) => base.Add(entity).Entity;
+    public new object Update(object entity) => base.Update(entity).Entity;
+    public new object Remove(object entity) => base.Remove(entity).Entity;
 }
