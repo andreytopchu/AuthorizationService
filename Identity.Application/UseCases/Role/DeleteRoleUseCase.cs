@@ -1,9 +1,11 @@
+using Dex.Extensions;
 using Identity.Abstractions;
 using Identity.Application.Abstractions.Models.Command.Role;
 using Identity.Application.Abstractions.Models.Query.Role;
 using Identity.Application.Abstractions.Repositories.Role;
 using Identity.Application.Abstractions.Repositories.User;
 using Identity.Application.Abstractions.UseCases;
+using Identity.Application.Extensions;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications.Role;
 using Microsoft.Extensions.Internal;
@@ -26,26 +28,25 @@ internal class DeleteRoleUseCase : IUseCase<IDeleteRoleCommand>
         _userReadRepository = userReadRepository ?? throw new ArgumentNullException(nameof(userReadRepository));
     }
 
-    //todo логику доработать
     public async Task Process(IDeleteRoleCommand arg, CancellationToken cancellationToken)
     {
-        var roleId = arg.RoleId;
+        if (arg == null) throw new ArgumentNullException(nameof(arg));
 
-        //roleId.ThrowIfRoleIdIsSuperAdmin();
-        //roleId.ThrowIfRoleIdIsNoAccess();
+        arg.RoleId.ThrowIfRoleIdIsSuperAdmin();
+        arg.RoleId.ThrowIfRoleIdIsNoAccess();
 
-        var userIds = await _userReadRepository.GetUserIdsByRoleAsync(roleId, cancellationToken);
+        var userIds = await _userReadRepository.GetUserIdsByRoleAsync(arg.RoleId, cancellationToken);
 
         if (userIds.Any())
         {
-            throw new EntityInUseException<RoleInfo>(roleId);
+            throw new EntityInUseException<RoleInfo>(arg.RoleId);
         }
 
-        var dbRole = await _roleWriteRepository.Read.SingleOrDefaultAsync(new ActiveRoleSpecification(roleId), cancellationToken);
+        var dbRole = await _roleWriteRepository.Read.SingleOrDefaultAsync(new ActiveRoleSpecification(arg.RoleId), cancellationToken);
         if (dbRole == null)
-            throw new EntityNotFoundException<RoleInfo>(roleId);
+            throw new EntityNotFoundException<RoleInfo>(arg.RoleId);
 
-        // dbRole.Policies?.Split(",").NotContainFullAccessPolicies();
+        dbRole.Policies.ForEach(x => x.Name.ThrowIfPolicyIsFullAccess());
 
         dbRole.Name = $"{dbRole.Id}.deleted#{dbRole.Name}";
         dbRole.DeletedUtc = _systemClock.UtcNow.UtcDateTime;

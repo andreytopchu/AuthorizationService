@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Identity.Abstractions;
-using Identity.Application.Abstractions.Models.Query.Policy;
 using Identity.Application.Abstractions.Repositories.Policy;
 using Identity.Domain.Entities;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications;
+using Identity.Domain.Specifications.Policy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Dal.Repository;
@@ -41,8 +41,10 @@ public class PolicyReadRepository : GenericReadRepository<Policy, Guid>, IPolicy
         return policyInfo;
     }
 
-    public async Task<PolicyInfo[]> GetPolicies(CancellationToken cancellationToken)
+    public async Task<TInfo[]> GetPolicies<TInfo>(Guid[] policyIds, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return await QueryBy(new PolicyByIdsSpecification(policyIds))
+            .ProjectTo<TInfo>(_mapper.ConfigurationProvider)
+            .ToArrayAsync(cancellationToken);
     }
 }
