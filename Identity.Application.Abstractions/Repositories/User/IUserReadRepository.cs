@@ -6,4 +6,5 @@ public interface IUserReadRepository : IReadRepository<Domain.Entities.User, Gui
 {
     Task<TInfo> GetUserByIdAsync<TInfo>(Guid employeeId, CancellationToken cancellationToken);
     Task<Guid[]> GetUserIdsByRoleAsync(Guid roleId, CancellationToken cancellationToken);
+    Task<Guid[]> GetUserIdsByPolicyAsync(Guid policyId, CancellationToken cancellationToken);
 }

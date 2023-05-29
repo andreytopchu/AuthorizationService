@@ -17,7 +17,6 @@ internal class AddRoleUseCase : IUseCase<IAddRoleCommand, RoleInfo>
         _roleWriteRepository = roleWriteRepository ?? throw new ArgumentNullException(nameof(roleWriteRepository));
     }
 
-    //todo логику доработать
     public async Task<RoleInfo> Process(IAddRoleCommand arg, CancellationToken cancellationToken)
     {
         if (arg == null)

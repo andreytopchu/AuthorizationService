@@ -7,48 +7,47 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 
-namespace Identity.Services
+namespace Identity.Services;
+
+// ReSharper disable once ClassNeverInstantiated.Global
+public class ProfileService : IProfileService
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
-    public class ProfileService : IProfileService
+    private readonly IUserStoreService _userStoreService;
+
+    public ProfileService(IUserStoreService userStoreService)
     {
-        private readonly IUserStoreService _userStoreService;
+        _userStoreService = userStoreService;
+    }
 
-        public ProfileService(IUserStoreService userStoreService)
+    public async Task GetProfileDataAsync(ProfileDataRequestContext context)
+    {
+        if (context.RequestedClaimTypes.Any())
         {
-            _userStoreService = userStoreService;
-        }
-
-        public async Task GetProfileDataAsync(ProfileDataRequestContext context)
-        {
-            if (context.RequestedClaimTypes.Any())
+            var subject = new Subject
             {
-                var subject = new Subject
-                {
-                    Sub = context.Subject.GetSubjectId(),
-                };
+                Sub = context.Subject.GetSubjectId(),
+            };
 
-                subject.Claims.AddRange(context.Subject.Claims.Select(x => new SimpleClaim
-                    { Type = x.Type, Value = x.Value }));
-                subject.Claims.AddRange(context.RequestedClaimTypes.Except(subject.Claims.Select(x => x.Type))
-                    .Select(x => new SimpleClaim { Type = x }));
+            subject.Claims.AddRange(context.Subject.Claims.Select(x => new SimpleClaim
+                { Type = x.Type, Value = x.Value }));
+            subject.Claims.AddRange(context.RequestedClaimTypes.Except(subject.Claims.Select(x => x.Type))
+                .Select(x => new SimpleClaim { Type = x }));
 
-                var user = await _userStoreService.FindBySubjectId(subject);
-                if (user != null)
-                {
-                    context.AddRequestedClaims(user.Claims.Select(x => new Claim(x.Type, x.Value)));
-                }
-                else
-                {
-                    context.IssuedClaims.Clear();
-                }
+            var user = await _userStoreService.FindBySubjectId(subject);
+            if (user != null)
+            {
+                context.AddRequestedClaims(user.Claims.Select(x => new Claim(x.Type, x.Value)));
+            }
+            else
+            {
+                context.IssuedClaims.Clear();
             }
         }
+    }
 
-        public async Task IsActiveAsync(IsActiveContext context)
-        {
-            var user = await _userStoreService.FindBySubjectId(new Subject { Sub = context.Subject.GetSubjectId() });
-            context.IsActive = user is not null && user.IsActive;
-        }
+    public async Task IsActiveAsync(IsActiveContext context)
+    {
+        var user = await _userStoreService.FindBySubjectId(new Subject { Sub = context.Subject.GetSubjectId() });
+        context.IsActive = user is not null && user.IsActive;
     }
 }

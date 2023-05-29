@@ -9,8 +9,13 @@
     <ItemGroup>
       <ProjectReference Include="..\Identity.Abstractions\Identity.Abstractions.csproj" />
       <ProjectReference Include="..\Identity.Application.Abstractions\Identity.Application.Abstractions.csproj" />
+      <ProjectReference Include="..\Identity.Domain.Contracts\Identity.Domain.Contracts.csproj" />
       <ProjectReference Include="..\Identity.Domain.Specifications\Identity.Domain.Specifications.csproj" />
       <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Dex.Cap.Outbox" Version="2.3.7" />
     </ItemGroup>
 
 </Project>

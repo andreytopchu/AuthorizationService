@@ -9,44 +9,43 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace IdentityDbSeeder
+namespace IdentityDbSeeder;
+
+public class Startup
 {
-    public class Startup
+    private IConfiguration Configuration { get; }
+
+    public Startup(HostBuilderContext builderContext)
     {
-        private IConfiguration Configuration { get; }
+        Configuration = builderContext.Configuration;
+    }
 
-        public Startup(HostBuilderContext builderContext)
+    public void ConfigureServices(IServiceCollection services)
+    {
+        AddDbContexts(services);
+
+        services.AddScoped<ConfigurationDbSeeder>();
+        services.AddScoped<PersistedGrantDbSeeder>();
+    }
+
+    private void AddDbContexts(IServiceCollection services)
+    {
+        var connectionString = Configuration.GetConnectionString("DefaultConnection");
+        if (connectionString!.IsNullOrEmpty())
+            throw new ConfigurationException("DefaultConnection is required");
+
+        services.AddConfigurationDbContext(options =>
         {
-            Configuration = builderContext.Configuration;
-        }
+            options.ConfigureDbContext = builder => builder.UseNpgsql(connectionString,
+                optionsBuilder =>
+                    optionsBuilder.MigrationsAssembly(typeof(InitConfigurationDbContext).Assembly.GetName().Name));
+        });
 
-        public void ConfigureServices(IServiceCollection services)
+        services.AddOperationalDbContext(options =>
         {
-            AddDbContexts(services);
-
-            services.AddScoped<ConfigurationDbSeeder>();
-            services.AddScoped<PersistedGrantDbSeeder>();
-        }
-
-        private void AddDbContexts(IServiceCollection services)
-        {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            if (connectionString!.IsNullOrEmpty())
-                throw new ConfigurationException("DefaultConnection is required");
-
-            services.AddConfigurationDbContext(options =>
-            {
-                options.ConfigureDbContext = builder => builder.UseNpgsql(connectionString,
-                    optionsBuilder =>
-                        optionsBuilder.MigrationsAssembly(typeof(InitConfigurationDbContext).Assembly.GetName().Name));
-            });
-
-            services.AddOperationalDbContext(options =>
-            {
-                options.ConfigureDbContext = builder => builder.UseNpgsql(connectionString,
-                    optionsBuilder =>
-                        optionsBuilder.MigrationsAssembly(typeof(InitPersistedGrantDbContext).Assembly.GetName().Name));
-            });
-        }
+            options.ConfigureDbContext = builder => builder.UseNpgsql(connectionString,
+                optionsBuilder =>
+                    optionsBuilder.MigrationsAssembly(typeof(InitPersistedGrantDbContext).Assembly.GetName().Name));
+        });
     }
 }

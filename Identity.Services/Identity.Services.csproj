@@ -16,4 +16,10 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="InvalidateUserTokenService.cs">
+        <DependentUpon>IInvalidateUserTokenService.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

@@ -11,129 +11,128 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace Identity
+namespace Identity;
+
+public class IdentityHost
 {
-    public class IdentityHost
+    public async Task<int> Run(string[] args)
     {
-        public async Task<int> Run(string[] args)
+        if (args == null) throw new ArgumentNullException(nameof(args));
+
+        try
         {
-            if (args == null) throw new ArgumentNullException(nameof(args));
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
 
-            try
-            {
-                Log.Logger = new LoggerConfiguration()
-                    .Enrich.FromLogContext()
-                    .WriteTo.Console()
-                    .CreateLogger();
-
-                Log.Information("Creating host...");
-                var host = CreateHostBuilder(args).Build();
-                Log.Information("Starting host...");
-                await host.RunAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Log.Fatal(ex, "Host terminated unexpectedly");
+            Log.Information("Creating host...");
+            var host = CreateHostBuilder(args).Build();
+            Log.Information("Starting host...");
+            await host.RunAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Log.Fatal(ex, "Host terminated unexpectedly");
 #if DEBUG
-                throw;
+            throw;
 #else
                 return 1;
 #endif
-            }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
-
-            return 0;
+        }
+        finally
+        {
+            Log.CloseAndFlush();
         }
 
-        private IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config.Sources.Clear();
+        return 0;
+    }
 
-                    var configuration = new ConfigurationBuilder()
-                        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                        .AddJsonFile("appsettings.json", false, false)
-                        .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", true,
-                            false)
-                        .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.local.json",
-                            true, false)
-                        .AddEnvironmentVariables()
-                        .AddCommandLine(args)
-                        .Build();
-
-                    config.AddConfiguration(configuration);
-                })
-                .ConfigureLogger()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.ConfigureKestrel(ConfigureKestrel);
-                    webBuilder.UseStartup<Startup>();
-                });
-
-        protected virtual void ConfigureKestrel(WebHostBuilderContext hostBuilderContext,
-            KestrelServerOptions kestrelServerOptions)
-        {
-            if (hostBuilderContext == null) throw new ArgumentNullException(nameof(hostBuilderContext));
-            if (kestrelServerOptions == null) throw new ArgumentNullException(nameof(kestrelServerOptions));
-
-            kestrelServerOptions.AllowSynchronousIO = true;
-            kestrelServerOptions.ConfigureHttpsDefaults(opt =>
+    private IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration((hostingContext, config) =>
             {
-                opt.SslProtocols = SslProtocols.None; // can OS autoselect protocol
+                config.Sources.Clear();
+
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("appsettings.json", false, false)
+                    .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", true,
+                        false)
+                    .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.local.json",
+                        true, false)
+                    .AddEnvironmentVariables()
+                    .AddCommandLine(args)
+                    .Build();
+
+                config.AddConfiguration(configuration);
+            })
+            .ConfigureLogger()
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.ConfigureKestrel(ConfigureKestrel);
+                webBuilder.UseStartup<Startup>();
             });
 
-            var urls = hostBuilderContext.Configuration["ASPNETCORE_URLS"]?
-                .Replace("+", "host.hh", StringComparison.Ordinal)
-                .Split(";");
+    protected virtual void ConfigureKestrel(WebHostBuilderContext hostBuilderContext,
+        KestrelServerOptions kestrelServerOptions)
+    {
+        if (hostBuilderContext == null) throw new ArgumentNullException(nameof(hostBuilderContext));
+        if (kestrelServerOptions == null) throw new ArgumentNullException(nameof(kestrelServerOptions));
 
-            if (urls != null)
+        kestrelServerOptions.AllowSynchronousIO = true;
+        kestrelServerOptions.ConfigureHttpsDefaults(opt =>
+        {
+            opt.SslProtocols = SslProtocols.None; // can OS autoselect protocol
+        });
+
+        var urls = hostBuilderContext.Configuration["ASPNETCORE_URLS"]?
+            .Replace("+", "host.hh", StringComparison.Ordinal)
+            .Split(";");
+
+        if (urls != null)
+        {
+            foreach (var url in urls)
             {
-                foreach (var url in urls)
+                var uri = new Uri(url);
+                if (uri.IsLoopback)
                 {
-                    var uri = new Uri(url);
-                    if (uri.IsLoopback)
-                    {
-                        kestrelServerOptions.ListenLocalhost(uri.Port, options => EnableHttpsIfNeed(options, uri));
-                    }
-                    else
-                    {
-                        kestrelServerOptions.ListenAnyIP(uri.Port, options => EnableHttpsIfNeed(options, uri));
-                    }
+                    kestrelServerOptions.ListenLocalhost(uri.Port, options => EnableHttpsIfNeed(options, uri));
                 }
-            }
-
-
-            void EnableHttpsIfNeed(ListenOptions options, Uri uri)
-            {
-                if (uri.IsAbsoluteUri && uri.Scheme.ToLower(CultureInfo.InvariantCulture) == "https")
+                else
                 {
-                    InitHttps(options, hostBuilderContext);
+                    kestrelServerOptions.ListenAnyIP(uri.Port, options => EnableHttpsIfNeed(options, uri));
                 }
             }
         }
 
-        private void InitHttps(ListenOptions options, WebHostBuilderContext hostBuilderContext)
-        {
-            if (hostBuilderContext == null) throw new ArgumentNullException(nameof(hostBuilderContext));
 
-            var certPath = hostBuilderContext.Configuration["ASPNETCORE_Kestrel:Certificates:Default:Path"];
-            var isCertFound = File.Exists(certPath);
-            if (isCertFound)
+        void EnableHttpsIfNeed(ListenOptions options, Uri uri)
+        {
+            if (uri.IsAbsoluteUri && uri.Scheme.ToLower(CultureInfo.InvariantCulture) == "https")
             {
-                var certPassword = hostBuilderContext.Configuration["ASPNETCORE_Kestrel:Certificates:Default:Password"];
+                InitHttps(options, hostBuilderContext);
+            }
+        }
+    }
+
+    private void InitHttps(ListenOptions options, WebHostBuilderContext hostBuilderContext)
+    {
+        if (hostBuilderContext == null) throw new ArgumentNullException(nameof(hostBuilderContext));
+
+        var certPath = hostBuilderContext.Configuration["ASPNETCORE_Kestrel:Certificates:Default:Path"];
+        var isCertFound = File.Exists(certPath);
+        if (isCertFound)
+        {
+            var certPassword = hostBuilderContext.Configuration["ASPNETCORE_Kestrel:Certificates:Default:Password"];
 #pragma warning disable CA2000
-                options.UseHttps(new X509Certificate2(certPath!, certPassword));
+            options.UseHttps(new X509Certificate2(certPath!, certPassword));
 #pragma warning restore CA2000
-            }
-            else
-            {
-                options.UseHttps();
-            }
+        }
+        else
+        {
+            options.UseHttps();
         }
     }
 }

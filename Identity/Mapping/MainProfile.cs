@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 
-namespace Identity.Mapping
+namespace Identity.Mapping;
+
+public class MainProfile : Profile
 {
-    public class MainProfile : Profile
+    public MainProfile()
     {
-        public MainProfile()
-        {
-        }
     }
 }

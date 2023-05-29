@@ -8,5 +8,5 @@ namespace Identity.Application.Abstractions.Models.Command.Policy;
 public interface IAddPolicyCommand : IUseCaseArg
 {
     public string Name { get; init; }
-    public string ClientId { get; init; }
+    public string[] ClientIds { get; init; }
 }

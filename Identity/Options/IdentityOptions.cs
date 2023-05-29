@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Identity.Options
+namespace Identity.Options;
+
+public class IdentityOptions
 {
-    public class IdentityOptions
-    {
-        [Required] public string ProviderName { get; set; } = "default-name";
-    }
+    [Required] public string ProviderName { get; set; } = "default-name";
 }

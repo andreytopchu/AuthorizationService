@@ -1,15 +1,14 @@
-﻿namespace Identity.Domain.Exceptions
+﻿namespace Identity.Domain.Exceptions;
+
+/// <summary>
+/// Сущность не найдена
+/// </summary>
+public class EntityNotFoundException : NotFoundException
 {
-    /// <summary>
-    /// Сущность не найдена
-    /// </summary>
-    public class EntityNotFoundException : NotFoundException
+    public EntityNotFoundException(object key, string type)
     {
-        public EntityNotFoundException(object key, string type)
-        {
-            // ReSharper disable VirtualMemberCallInConstructor
-            Data["Key"] = key;
-            Data["Type"] = type;
-        }
+        // ReSharper disable VirtualMemberCallInConstructor
+        Data["Key"] = key;
+        Data["Type"] = type;
     }
 }

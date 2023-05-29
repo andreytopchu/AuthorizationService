@@ -15,4 +15,5 @@ public class Policy : ICreatedUtc, IUpdatedUtc, IDeletable, IEntity<Guid>
     public string Name { get; set; } = null!;
 
     public ICollection<Role> Roles { get; set; } = Array.Empty<Role>();
+    public ICollection<ClientPolicy> Clients { get; set; } = Array.Empty<ClientPolicy>();
 }

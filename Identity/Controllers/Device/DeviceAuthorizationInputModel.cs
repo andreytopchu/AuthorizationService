@@ -4,10 +4,9 @@
 
 using Identity.Controllers.Consent;
 
-namespace Identity.Controllers.Device
+namespace Identity.Controllers.Device;
+
+public class DeviceAuthorizationInputModel : ConsentInputModel
 {
-    public class DeviceAuthorizationInputModel : ConsentInputModel
-    {
-        public string UserCode { get; set; }
-    }
+    public string UserCode { get; set; }
 }

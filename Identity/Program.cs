@@ -3,13 +3,12 @@
 
 using System.Threading.Tasks;
 
-namespace Identity
+namespace Identity;
+
+public static class Program
 {
-    public static class Program
+    public static Task Main(string[] args)
     {
-        public static Task Main(string[] args)
-        {
-            return new IdentityHost().Run(args);
-        }
+        return new IdentityHost().Run(args);
     }
 }

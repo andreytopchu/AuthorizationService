@@ -7,6 +7,5 @@ public interface IPolicyReadRepository : IReadRepository<Domain.Entities.Policy,
 {
     Task<bool> IsPolicyExistAsync(Guid id, CancellationToken cancellationToken);
     Task<TInfo> GetPolicyByIdAsync<TInfo>(Guid roleId, CancellationToken cancellationToken);
-
     Task<PolicyInfo[]> GetPolicies(CancellationToken cancellationToken);
 }

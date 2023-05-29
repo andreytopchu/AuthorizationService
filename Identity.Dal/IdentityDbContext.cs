@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Identity.Abstractions;
-using Identity.Application.Abstractions.Exceptions;
 using Identity.Dal.EntityConfigurations;
 using Identity.Dal.Extensions;
+using Identity.Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 

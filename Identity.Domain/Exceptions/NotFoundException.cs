@@ -1,18 +1,17 @@
-﻿namespace Identity.Domain.Exceptions
+﻿namespace Identity.Domain.Exceptions;
+
+/// <remarks>Status: 404</remarks>
+public abstract class NotFoundException : UserException
 {
-    /// <remarks>Status: 404</remarks>
-    public abstract class NotFoundException : UserException
+    protected NotFoundException()
     {
-        protected NotFoundException()
-        {
-        }
+    }
 
-        protected NotFoundException(string? message) : base(message)
-        {
-        }
+    protected NotFoundException(string? message) : base(message)
+    {
+    }
 
-        protected NotFoundException(string? message, Exception? innerException) : base(message, innerException)
-        {
-        }
+    protected NotFoundException(string? message, Exception? innerException) : base(message, innerException)
+    {
     }
 }

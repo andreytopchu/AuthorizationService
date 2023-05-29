@@ -2,17 +2,16 @@
 using IdentityDbSeeder.Seeder;
 using IdentityServer4.EntityFramework.DbContexts;
 
-namespace IdentityDbSeeder.SeedData
-{
-    public class PersistedGrantDbSeeder : BaseEfSeeder<PersistedGrantDbContext>, IDbSeeder
-    {
-        public PersistedGrantDbSeeder(PersistedGrantDbContext context) : base(context)
-        {
-        }
+namespace IdentityDbSeeder.SeedData;
 
-        protected override Task EnsureSeedData()
-        {
-            return Task.CompletedTask;
-        }
+public class PersistedGrantDbSeeder : BaseEfSeeder<PersistedGrantDbContext>, IDbSeeder
+{
+    public PersistedGrantDbSeeder(PersistedGrantDbContext context) : base(context)
+    {
+    }
+
+    protected override Task EnsureSeedData()
+    {
+        return Task.CompletedTask;
     }
 }

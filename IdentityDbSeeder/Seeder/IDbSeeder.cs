@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace IdentityDbSeeder.Seeder
+namespace IdentityDbSeeder.Seeder;
+
+public interface IDbSeeder
 {
-    public interface IDbSeeder
-    {
-        Task RunAsync(bool ensureDeleted);
-    }
+    Task RunAsync(bool ensureDeleted);
 }

@@ -12,6 +12,7 @@ public static class MicrosoftDependencyInjectionExtensions
             expression => expression.AddMaps(typeof(MicrosoftDependencyInjectionExtensions).Assembly));
 
         return services
-            .AddScoped<IUserStoreService, UserStoreService>();
+            .AddScoped<IUserStoreService, UserStoreService>()
+            .AddScoped<IInvalidateUserTokenService, InvalidateUserTokenService>();
     }
 }

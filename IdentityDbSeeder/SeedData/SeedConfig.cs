@@ -5,22 +5,21 @@ using System.Collections.Generic;
 using IdentityModel;
 using IdentityServer4.Models;
 
-namespace IdentityDbSeeder.SeedData
+namespace IdentityDbSeeder.SeedData;
+
+public static class SeedConfig
 {
-    public static class SeedConfig
-    {
-        public static IEnumerable<IdentityResource> IdentityResources =>
-            new IdentityResource[]
+    public static IEnumerable<IdentityResource> IdentityResources =>
+        new IdentityResource[]
+        {
+            new IdentityResources.OpenId(),
+            new IdentityResources.Profile
             {
-                new IdentityResources.OpenId(),
-                new IdentityResources.Profile
+                UserClaims = new List<string>
                 {
-                    UserClaims = new List<string>
-                    {
-                        JwtClaimTypes.Name
-                    }
-                },
-                new("policy", new[] { "policy" })
-            };
-    }
+                    JwtClaimTypes.Name
+                }
+            },
+            new("policy", new[] { "policy" })
+        };
 }
