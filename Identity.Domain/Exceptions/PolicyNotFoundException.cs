@@ -1,6 +1,6 @@
 namespace Identity.Domain.Exceptions;
 
-public class PolicyNotFoundException : NotFoundException
+public sealed class PolicyNotFoundException : NotFoundException
 {
     public PolicyNotFoundException(Guid roleId)
     {

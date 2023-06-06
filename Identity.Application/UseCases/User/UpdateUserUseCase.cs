@@ -4,7 +4,7 @@ using Identity.Application.Abstractions.UseCases;
 
 namespace Identity.Application.UseCases.User;
 
-public class UpdatePolicyUseCase : IUseCase<IUpdateUserCommand, UserInfo>
+public class UpdateUserUseCase : IUseCase<IUpdateUserCommand, UserInfo>
 {
     public async Task<UserInfo> Process(IUpdateUserCommand arg, CancellationToken cancellationToken)
     {

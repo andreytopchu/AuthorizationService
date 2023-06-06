@@ -1,3 +1,4 @@
+using AutoMapper;
 using Dex.Extensions;
 using Identity.Abstractions;
 using Identity.Application.Abstractions.Models.Command.Role;
@@ -15,12 +16,14 @@ internal class AddRoleUseCase : IUseCase<IAddRoleCommand, RoleInfo>
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRoleWriteRepository _roleWriteRepository;
     private readonly IPolicyReadRepository _policyReadRepository;
+    private readonly IMapper _mapper;
 
-    public AddRoleUseCase(IUnitOfWork unitOfWork, IRoleWriteRepository roleWriteRepository, IPolicyReadRepository policyReadRepository)
+    public AddRoleUseCase(IUnitOfWork unitOfWork, IRoleWriteRepository roleWriteRepository, IPolicyReadRepository policyReadRepository, IMapper mapper)
     {
-        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-        _roleWriteRepository = roleWriteRepository ?? throw new ArgumentNullException(nameof(roleWriteRepository));
+        _unitOfWork = unitOfWork;
+        _roleWriteRepository = roleWriteRepository;
         _policyReadRepository = policyReadRepository;
+        _mapper = mapper;
     }
 
     public async Task<RoleInfo> Process(IAddRoleCommand arg, CancellationToken cancellationToken)
@@ -35,18 +38,15 @@ internal class AddRoleUseCase : IUseCase<IAddRoleCommand, RoleInfo>
 
         policies.ForEach(x => x.Name.ThrowIfPolicyIsFullAccess());
 
-        var newDbRecord = new Domain.Entities.Role
-        {
-            Name = arg.Name,
-            CreatedUtc = DateTime.UtcNow,
-            Policies = policies,
-            Description = arg.Description
-        };
-        await _roleWriteRepository.AddAsync(newDbRecord, cancellationToken);
+        var role = _mapper.Map<Domain.Entities.Role>(arg);
+
+        role.Policies = policies;
+
+        await _roleWriteRepository.AddAsync(role, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return await GetRoleById(newDbRecord.Id, cancellationToken);
+        return await GetRoleById(role.Id, cancellationToken);
     }
 
     private Task<RoleInfo> GetRoleById(Guid id, CancellationToken cancellationToken)

@@ -1,13 +1,68 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Identity.Application.Abstractions.Models.Command.Client;
 using Identity.Application.Abstractions.Models.Query.Client;
 using Identity.Application.Abstractions.UseCases;
+using Identity.Domain.Exceptions;
+using Identity.Domain.Specifications.Client;
+using IdentityServer4.EntityFramework.DbContexts;
+using IdentityServer4.EntityFramework.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Application.UseCases.Client;
 
 public class UpdateClientUseCase : IUseCase<IUpdateClientCommand, ClientInfo>
 {
+    private readonly ConfigurationDbContext _dbContext;
+    private readonly IMapper _mapper;
+
+    public UpdateClientUseCase(ConfigurationDbContext dbContext, IMapper mapper)
+    {
+        _dbContext = dbContext;
+        _mapper = mapper;
+    }
+
     public async Task<ClientInfo> Process(IUpdateClientCommand arg, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        if (arg == null) throw new ArgumentNullException(nameof(arg));
+
+        var clientDb = await _dbContext.Clients
+            .Where(new ClientByClientIdSpecification(arg.ClientId))
+            .Include(x => x.ClientSecrets)
+            .Include(x => x.AllowedGrantTypes)
+            .Include(x => x.AllowedScopes)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (clientDb is null)
+        {
+            throw new ClientNotFoundException(arg.ClientId);
+        }
+
+        //update secrets
+        var clientSecrets = clientDb.ClientSecrets.Where(x => arg.ApiSecrets.Contains(x.Value)).ToList();
+        clientSecrets.AddRange(arg.ApiSecrets.Except(clientSecrets.Select(cs => cs.Value)).Select(x => new ClientSecret {Value = x}));
+        clientDb.ClientSecrets = clientSecrets;
+
+        //update grant types
+        var grandTypes = clientDb.AllowedGrantTypes.Where(x => arg.AllowedGrantTypes.Contains(x.GrantType)).ToList();
+        grandTypes.AddRange(arg.AllowedGrantTypes.Except(grandTypes.Select(gt => gt.GrantType)).Select(x => new ClientGrantType {GrantType = x}));
+        clientDb.AllowedGrantTypes = grandTypes;
+
+        //update allowed scopes
+        var allowedScopes = clientDb.AllowedScopes.Where(x => arg.AllowedScopes.Contains(x.Scope)).ToList();
+        allowedScopes.AddRange(arg.AllowedGrantTypes.Except(allowedScopes.Select(s => s.Scope)).Select(x => new ClientScope {Scope = x}));
+        clientDb.AllowedScopes = allowedScopes;
+
+        _mapper.Map(arg, clientDb);
+
+        _dbContext.Update(clientDb);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return await GetClientById(clientDb.ClientId, cancellationToken);
+    }
+
+    private async Task<ClientInfo> GetClientById(string clientId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Clients.Where(new ClientByClientIdSpecification(clientId))
+            .ProjectTo<ClientInfo>(_mapper.ConfigurationProvider).FirstAsync(cancellationToken);
     }
 }

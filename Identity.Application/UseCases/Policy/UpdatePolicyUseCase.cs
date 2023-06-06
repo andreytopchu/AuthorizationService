@@ -1,3 +1,4 @@
+using AutoMapper;
 using Dex.Cap.Outbox.Interfaces;
 using Identity.Abstractions;
 using Identity.Application.Abstractions.Models.Command.Policy;
@@ -7,7 +8,6 @@ using Identity.Application.Abstractions.Repositories.User;
 using Identity.Application.Abstractions.UseCases;
 using Identity.Application.Extensions;
 using Identity.Application.IntegrationEvents;
-using Identity.Domain.Entities;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications;
 
@@ -18,12 +18,15 @@ public class UpdatePolicyUseCase : IUseCase<IUpdatePolicyCommand, PolicyInfo>
     private readonly IPolicyWriteRepository _policyWriteRepository;
     private readonly IUserReadRepository _userReadRepository;
     private readonly IOutboxService<IUnitOfWork> _outboxService;
+    private readonly IMapper _mapper;
 
-    public UpdatePolicyUseCase(IPolicyWriteRepository policyWriteRepository, IOutboxService<IUnitOfWork> outboxService, IUserReadRepository userReadRepository)
+    public UpdatePolicyUseCase(IPolicyWriteRepository policyWriteRepository, IOutboxService<IUnitOfWork> outboxService, IUserReadRepository userReadRepository,
+        IMapper mapper)
     {
         _policyWriteRepository = policyWriteRepository;
         _outboxService = outboxService;
         _userReadRepository = userReadRepository;
+        _mapper = mapper;
     }
 
     public async Task<PolicyInfo> Process(IUpdatePolicyCommand arg, CancellationToken cancellationToken)
@@ -46,8 +49,7 @@ public class UpdatePolicyUseCase : IUseCase<IUpdatePolicyCommand, PolicyInfo>
 
             var oldName = dbPolicy.Name;
 
-            dbPolicy.Name = arg.Name;
-            dbPolicy.Clients = arg.ClientIds.Select(x => new ClientPolicy {ClientId = x, PolicyName = string.Concat(new[] {x, "_", arg.Name})}).ToArray();
+            _mapper.Map(arg, dbPolicy);
 
             if (oldName != arg.Name)
             {

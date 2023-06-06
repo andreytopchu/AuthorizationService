@@ -2,4 +2,6 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\andre\.nuget\packages\dex.cap.common.ef\2.3.6\lib\net6.0\Dex.Cap.Common.Ef.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\andre\.nuget\packages\microsoft.entityframeworkcore\7.0.5\lib\net6.0\Microsoft.EntityFrameworkCore.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\andre\.nuget\packages\identityserver4.entityframework.storage\4.1.2\lib\netstandard2.0\IdentityServer4.EntityFramework.Storage.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\andre\.nuget\packages\identityserver4.storage\4.1.2\lib\netstandard2.0\IdentityServer4.Storage.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>

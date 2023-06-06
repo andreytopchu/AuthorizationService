@@ -1,3 +1,4 @@
+using AutoMapper;
 using Dex.Cap.Outbox.Interfaces;
 using Dex.Extensions;
 using Identity.Abstractions;
@@ -20,14 +21,16 @@ internal class UpdateRoleUseCase : IUseCase<IUpdateRoleCommand, RoleInfo>
     private readonly IUserReadRepository _userReadRepository;
     private readonly IPolicyReadRepository _policyReadRepository;
     private readonly IOutboxService<IUnitOfWork> _outboxService;
+    private readonly IMapper _mapper;
 
     public UpdateRoleUseCase(IRoleWriteRepository roleWriteRepository, IUserReadRepository userReadRepository, IPolicyReadRepository policyReadRepository,
-        IOutboxService<IUnitOfWork> outboxService)
+        IOutboxService<IUnitOfWork> outboxService, IMapper mapper)
     {
         _roleWriteRepository = roleWriteRepository;
         _userReadRepository = userReadRepository;
         _policyReadRepository = policyReadRepository;
         _outboxService = outboxService;
+        _mapper = mapper;
     }
 
     public async Task<RoleInfo> Process(IUpdateRoleCommand arg, CancellationToken cancellationToken)
@@ -58,10 +61,9 @@ internal class UpdateRoleUseCase : IUseCase<IUpdateRoleCommand, RoleInfo>
 
             policies.ForEach(x => x.Name.ThrowIfPolicyIsFullAccess());
 
-            dbRole.Name = arg.Name;
-            dbRole.Policies = policies;
-            dbRole.Description = arg.Description;
+            _mapper.Map(arg, dbRole);
 
+            dbRole.Policies = policies;
 
             await outboxContext.EnqueueAsync(new UserTokenInvalidationIntegrationEvent
             {

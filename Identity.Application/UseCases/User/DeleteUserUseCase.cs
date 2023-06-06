@@ -3,7 +3,7 @@ using Identity.Application.Abstractions.UseCases;
 
 namespace Identity.Application.UseCases.User;
 
-public class DeletePolicyUseCase : IUseCase<IDeleteUserCommand>
+public class DeleteUserUseCase : IUseCase<IDeleteUserCommand>
 {
     public async Task Process(IDeleteUserCommand arg, CancellationToken cancellationToken)
     {
