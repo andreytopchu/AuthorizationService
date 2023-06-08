@@ -8,14 +8,19 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Identity.Abstractions\Identity.Abstractions.csproj" />
+      <ProjectReference Include="..\Identity.Application.Abstractions\Identity.Application.Abstractions.csproj" />
       <ProjectReference Include="..\Identity.Domain.Specifications\Identity.Domain.Specifications.csproj" />
       <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
-      <ProjectReference Include="..\Identity\Identity.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Dex.Cap.Common.Ef" Version="2.1.1" />
+      <PackageReference Include="Dex.Cap.Common.Ef" Version="2.3.6" />
+      <PackageReference Include="Dex.Cap.OnceExecutor.Ef" Version="2.8.36" />
+      <PackageReference Include="Dex.Cap.Outbox" Version="2.3.7" />
+      <PackageReference Include="Dex.Cap.Outbox.AspNetScheduler" Version="2.3.28" />
+      <PackageReference Include="Dex.Cap.Outbox.Ef" Version="2.5.10" />
       <PackageReference Include="Dex.Ef" Version="1.1.25" />
+      <PackageReference Include="MassTransit" Version="7.3.1" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
     </ItemGroup>

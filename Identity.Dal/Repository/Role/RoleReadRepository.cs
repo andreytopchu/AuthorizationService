@@ -6,20 +6,20 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Identity.Abstractions;
 using Identity.Application.Abstractions.Repositories.Role;
-using Identity.Domain.Entities;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications.Role;
 using Microsoft.EntityFrameworkCore;
 
-namespace Identity.Dal.Repository;
+namespace Identity.Dal.Repository.Role;
 
-public class RoleReadRepository : GenericReadRepository<Role, Guid>, IRoleReadRepository
+public class RoleReadRepository : GenericReadRepository<Domain.Entities.Role, Guid>, IRoleReadRepository
 {
     private readonly IMapper _mapper;
-    protected override IQueryable<Role> BaseQuery => base.BaseQuery.Include(x => x.Policies);
+    protected override IQueryable<Domain.Entities.Role> BaseQuery => base.BaseQuery.Include(x => x.Policies);
 
-    public RoleReadRepository(IReadDbContext dbContext) : base(dbContext)
+    public RoleReadRepository(IReadDbContext dbContext, IMapper mapper) : base(dbContext)
     {
+        _mapper = mapper;
     }
 
     public async Task<bool> IsRoleExistAsync(Guid id, CancellationToken cancellationToken)

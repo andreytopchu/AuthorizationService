@@ -1,19 +1,20 @@
-using System;
+﻿using System;
 using Identity.Dal.EntityConfigurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Dal;
 
-public class IdentityDbContext : BaseDbContext<IdentityDbContext>
+internal class IdentityReadDbContext : BaseDbContext<IdentityReadDbContext>
 {
-    public IdentityDbContext(DbContextOptions<IdentityDbContext> options)
-        : base(options)
+    protected override bool IsReadOnly => true;
+
+    public IdentityReadDbContext(DbContextOptions<IdentityReadDbContext> options) : base(options)
     {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        if (modelBuilder is null) throw new ArgumentNullException(nameof(modelBuilder));
+        if (modelBuilder == null) throw new ArgumentNullException(nameof(modelBuilder));
 
         //entityConfigurations
         modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());

@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
+using Identity.Application.Extensions;
+using Identity.Dal.Extensions;
 using Identity.ExceptionFilter;
 using Identity.Logger;
 using Identity.Mapping;
@@ -115,5 +117,12 @@ public class Startup
             expression.AddMaps(Assembly.GetEntryAssembly());
             expression.AddProfile(new MainProfile());
         });
+
+        //services
+        services.AddIdentityServices();
+
+        // core
+        services.AddIdentityDal(Configuration.GetConnectionString("DefaultConnection")!);
+        services.AddIdentityUseCases();
     }
 }

@@ -21,8 +21,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoMapper" Version="12.0.1" />
-        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
         <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
         <PackageReference Include="MassTransit" Version="7.3.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
@@ -60,7 +58,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Identity.Application.Abstractions\Identity.Application.Abstractions.csproj" />
+        <ProjectReference Include="..\Identity.Application\Identity.Application.csproj" />
+        <ProjectReference Include="..\Identity.Dal\Identity.Dal.csproj" />
         <ProjectReference Include="..\Identity.Domain.Contracts\Identity.Domain.Contracts.csproj" />
         <ProjectReference Include="..\Identity.Services\Identity.Services.csproj" />
     </ItemGroup>

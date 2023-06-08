@@ -4,4 +4,5 @@ namespace Identity.Application.Abstractions.Models.Command.User;
 
 public interface IDeleteUserCommand : IUseCaseArg
 {
+    public Guid UserId { get; init; }
 }

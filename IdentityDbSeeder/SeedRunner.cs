@@ -24,7 +24,6 @@ public static class SeedRunner
         }
 
         var host = hostBuilder
-            .ConfigureLogger()
             .ConfigureServices((context, collection) =>
                 new Startup(context).ConfigureServices(collection))
             .Build();
@@ -60,14 +59,5 @@ public static class SeedRunner
         }
 
         Log.CloseAndFlush();
-    }
-
-    private static IHostBuilder ConfigureLogger(this IHostBuilder builder)
-    {
-        return builder.UseSerilog((context, configuration) =>
-        {
-            configuration.ReadFrom.Configuration(context.Configuration);
-            configuration.Enrich.WithProperty("AppName", AppDomain.CurrentDomain.FriendlyName);
-        });
     }
 }

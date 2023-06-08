@@ -1,13 +1,25 @@
 ﻿using System;
+using Dex.Cap.Outbox.AspNetScheduler;
+using Dex.Cap.Outbox.Ef;
+using Dex.Cap.Outbox.Interfaces;
 using Identity.Abstractions;
 using Identity.Abstractions.Repository;
+using Identity.Application.Abstractions.Repositories.ApiResource;
+using Identity.Application.Abstractions.Repositories.Policy;
+using Identity.Application.Abstractions.Repositories.Role;
+using Identity.Application.Abstractions.Repositories.User;
 using Identity.Dal.Interceptors;
 using Identity.Dal.Repository;
+using Identity.Dal.Repository.ApiResource;
+using Identity.Dal.Repository.Policy;
+using Identity.Dal.Repository.Role;
+using Identity.Dal.Repository.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using Npgsql;
+using Shared.Outbox;
 
 namespace Identity.Dal.Extensions;
 
@@ -15,7 +27,25 @@ public static class MicrosoftDependencyInjectionExtensions
 {
     private const int DefaultRetryDelay = 500;
 
-    public static void RegisterDal<TDbContext, TReadDbContext>(this IServiceCollection services, string writeConnectionString,
+    public static void AddIdentityDal(this IServiceCollection services, string writeConnectionString, string? readConnectionString = null)
+    {
+        if (services == null) throw new ArgumentNullException(nameof(services));
+        if (writeConnectionString == null) throw new ArgumentNullException(nameof(writeConnectionString));
+
+        // dbContexts
+        services.RegisterDal<IdentityDbContext, IdentityReadDbContext>(writeConnectionString, readConnectionString);
+
+        // repositories
+        services.RegisterRepositories();
+
+        // outbox
+        services.AddOutbox<IdentityDbContext>();
+        services.RegisterOutboxScheduler(10);
+        services.AddScoped(typeof(IOutboxMessageHandler<>), typeof(GenericMassTransitPublisher<>));
+        services.AddScoped<IOutboxService<IUnitOfWork>>(provider => provider.GetRequiredService<IOutboxService<IdentityDbContext>>());
+    }
+
+    private static void RegisterDal<TDbContext, TReadDbContext>(this IServiceCollection services, string writeConnectionString,
         string? readConnectionString = null)
         where TDbContext : DbContext, IWriteDbContext, IUnitOfWork
         where TReadDbContext : DbContext, IReadDbContext
@@ -30,13 +60,13 @@ public static class MicrosoftDependencyInjectionExtensions
 
         readConnectionString ??= writeConnectionString;
         services.RegisterReadDbContext<TReadDbContext>(readConnectionString);
-        services.AddScoped<IReadDbContext>(p => p.GetRequiredService<TReadDbContext>());
+        services.AddScoped<IReadDbContext>(p => p.GetRequiredService<IdentityReadDbContext>());
 
         // default repositories
-        services.RegisterGenericRepository();
+        services.RegisterGenericRepositories();
     }
 
-    public static void RegisterDbContext<TDbContext>(this IServiceCollection services, string connectionString,
+    private static void RegisterDbContext<TDbContext>(this IServiceCollection services, string connectionString,
         int maxRetryCount = 3, TimeSpan maxRetryDelay = default)
         where TDbContext : DbContext
     {
@@ -75,23 +105,39 @@ public static class MicrosoftDependencyInjectionExtensions
             builder.UseNpgsql(connectionString,
                 optionsBuilder =>
                 {
-                    optionsBuilder.EnableRetryOnFailure(maxRetryCount,
-                        maxRetryDelay != default ? maxRetryDelay : TimeSpan.FromMilliseconds(DefaultRetryDelay), null);
+                    if (maxRetryCount > 0)
+                    {
+                        optionsBuilder.EnableRetryOnFailure(maxRetryCount,
+                            maxRetryDelay != default ? maxRetryDelay : TimeSpan.FromMilliseconds(DefaultRetryDelay), null);
+                    }
                 });
         });
     }
 
-    // ReSharper disable MemberCanBePrivate.Global
-    internal static void RegisterGenericRepository(this IServiceCollection services)
+    private static void RegisterGenericRepositories(this IServiceCollection services)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
 
-        services.AddScoped(typeof(IReadRepository<,>), typeof(GenericReadRepository<,>));
-        services.AddScoped(typeof(IWriteRepository<,>), typeof(GenericWriteRepository<,>));
-        services.AddScoped(typeof(IWriteRepository<,,>), typeof(GenericWriteRepository<,,>));
+        services.AddScoped(typeof(IReadRepository<,>), typeof(GenericReadRepository<,>))
+            .AddScoped(typeof(IWriteRepository<,>), typeof(GenericWriteRepository<,>))
+            .AddScoped(typeof(IWriteRepository<,,>), typeof(GenericWriteRepository<,,>));
     }
 
-    internal static void RegisterInterceptors(this IServiceCollection services)
+    private static void RegisterRepositories(this IServiceCollection services)
+    {
+        if (services == null) throw new ArgumentNullException(nameof(services));
+
+        services.AddScoped<IRoleReadRepository, RoleReadRepository>()
+            .AddScoped<IRoleWriteRepository, RoleWriteRepository>()
+            .AddScoped<IPolicyReadRepository, PolicyReadRepository>()
+            .AddScoped<IPolicyWriteRepository, PolicyWriteRepository>()
+            .AddScoped<IApiResourceReadRepository, ApiResourceReadRepository>()
+            .AddScoped<IApiResourceWriteRepository, ApiResourceWriteRepository>()
+            .AddScoped<IUserReadRepository, UserReadRepository>()
+            .AddScoped<IUserWriteRepository, UserWriteRepository>();
+    }
+
+    private static void RegisterInterceptors(this IServiceCollection services)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
 
@@ -102,6 +148,8 @@ public static class MicrosoftDependencyInjectionExtensions
     private static void RegisterRequiredServices(this IServiceCollection services)
     {
         services.AddSingleton<ISystemClock, SystemClock>();
+#pragma warning disable CS0618
         services.AddSingleton(NpgsqlConnection.GlobalTypeMapper.DefaultNameTranslator);
+#pragma warning restore CS0618
     }
 }

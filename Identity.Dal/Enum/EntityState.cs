@@ -1,4 +1,4 @@
-namespace Identity.Application.Abstractions.Enum;
+namespace Identity.Dal.Enum;
 
 public enum EntityState
 {

@@ -4,5 +4,5 @@ namespace Identity.Application.Abstractions.Models.Command.ApiResource;
 
 public interface IDeleteApiResourceCommand : IUseCaseArg
 {
-    public long ApiResourceId { get; init; }
+    public int ApiResourceId { get; init; }
 }

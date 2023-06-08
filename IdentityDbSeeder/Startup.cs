@@ -1,4 +1,4 @@
-﻿using Common.Logging;
+﻿using System;
 using Dex.Extensions;
 using Identity.Dal.ConfigurationDb;
 using Identity.Dal.PersistedGrantDb;
@@ -32,7 +32,7 @@ public class Startup
     {
         var connectionString = Configuration.GetConnectionString("DefaultConnection");
         if (connectionString!.IsNullOrEmpty())
-            throw new ConfigurationException("DefaultConnection is required");
+            throw new Exception("DefaultConnection is required");
 
         services.AddConfigurationDbContext(options =>
         {

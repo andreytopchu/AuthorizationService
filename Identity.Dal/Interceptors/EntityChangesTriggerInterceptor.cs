@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dex.Extensions;
-using Identity.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -52,20 +51,20 @@ internal sealed class EntityChangesTriggerInterceptor : SaveChangesInterceptor
             });
         }
 
-        static Application.Abstractions.Enum.EntityState GetEntityState(IGrouping<EntityState, EntityEntry> x)
+        static Enum.EntityState GetEntityState(IGrouping<EntityState, EntityEntry> x)
         {
-            var entityState = Application.Abstractions.Enum.EntityState.None;
+            var entityState = Enum.EntityState.None;
             var entityFrameworkModelState = x.Key;
             switch (entityFrameworkModelState)
             {
                 case EntityState.Deleted:
-                    entityState = Application.Abstractions.Enum.EntityState.Deleted;
+                    entityState = Enum.EntityState.Deleted;
                     break;
                 case EntityState.Modified:
-                    entityState = Application.Abstractions.Enum.EntityState.Modified;
+                    entityState = Enum.EntityState.Modified;
                     break;
                 case EntityState.Added:
-                    entityState = Application.Abstractions.Enum.EntityState.Added;
+                    entityState = Enum.EntityState.Added;
                     break;
                 case EntityState.Detached:
                 case EntityState.Unchanged:

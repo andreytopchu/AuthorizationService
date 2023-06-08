@@ -6,19 +6,18 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Identity.Abstractions;
 using Identity.Application.Abstractions.Repositories.User;
-using Identity.Domain.Entities;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications;
 using Identity.Domain.Specifications.User;
 using Microsoft.EntityFrameworkCore;
 
-namespace Identity.Dal.Repository;
+namespace Identity.Dal.Repository.User;
 
-public class UserReadRepository : GenericReadRepository<User, Guid>, IUserReadRepository
+public class UserReadRepository : GenericReadRepository<Domain.Entities.User, Guid>, IUserReadRepository
 {
     private readonly IMapper _mapper;
 
-    protected override IQueryable<User> BaseQuery => base.BaseQuery.Include(x => x.Role);
+    protected override IQueryable<Domain.Entities.User> BaseQuery => base.BaseQuery.Include(x => x.Role);
 
     public UserReadRepository(IReadDbContext dbContext, IMapper mapper) : base(dbContext)
     {
@@ -27,7 +26,7 @@ public class UserReadRepository : GenericReadRepository<User, Guid>, IUserReadRe
 
     public async Task<TInfo> GetUserByIdAsync<TInfo>(Guid employeeId, CancellationToken cancellationToken)
     {
-        var userInfo = await QueryBy(new UndeleteEntitySpecification<User>())
+        var userInfo = await QueryBy(new UndeleteEntitySpecification<Domain.Entities.User>())
             .ProjectTo<TInfo>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
 

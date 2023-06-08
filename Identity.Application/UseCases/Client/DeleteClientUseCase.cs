@@ -1,4 +1,3 @@
-using Identity.Abstractions;
 using Identity.Application.Abstractions.Models.Command.Client;
 using Identity.Application.Abstractions.UseCases;
 using Identity.Domain.Exceptions;
@@ -10,12 +9,10 @@ namespace Identity.Application.UseCases.Client;
 public class DeleteClientUseCase : IUseCase<IDeleteClientCommand>
 {
     private readonly ConfigurationDbContext _dbContext;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteClientUseCase(ConfigurationDbContext dbContext, IUnitOfWork unitOfWork)
+    public DeleteClientUseCase(ConfigurationDbContext dbContext)
     {
         _dbContext = dbContext;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task Process(IDeleteClientCommand arg, CancellationToken cancellationToken)
@@ -31,6 +28,6 @@ public class DeleteClientUseCase : IUseCase<IDeleteClientCommand>
 
         _dbContext.Remove(client);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

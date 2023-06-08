@@ -6,13 +6,11 @@ using Identity.Application.Abstractions.Models.Query.Role;
 using Identity.Application.Abstractions.UseCases;
 using Identity.ExceptionFilter;
 using Identity.Models.Requests.Role;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Identity.Controllers.Admin;
 
-[Authorize("role.read")]
 public class RoleController : BaseController
 {
     /// <summary>
@@ -28,7 +26,6 @@ public class RoleController : BaseController
     /// <response code="403">Нет прав на совершение действия</response>
     /// <response code="409">Конфликт</response>
     /// <response code="500">Ошибка сервера</response>
-    [Authorize("role.write")]
     [HttpPost]
     [ProducesResponseType(typeof(RoleInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
@@ -54,7 +51,6 @@ public class RoleController : BaseController
     /// <response code="403">Нет прав на совершение действия</response>
     /// <response code="409">Конфликт</response>
     /// <response code="500">Ошибка сервера</response>
-    [Authorize("role.write")]
     [HttpPut]
     [ProducesResponseType(typeof(RoleInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
@@ -78,7 +74,6 @@ public class RoleController : BaseController
     /// <response code="401">Отсутствует авторизация в систему</response>
     /// <response code="403">Нет прав на совершение действия</response>
     /// <response code="500">Ошибка сервера</response>
-    [Authorize("role.write")]
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteRole([FromQuery] Guid id, [FromServices] IUseCase<IDeleteRoleCommand> deleteRoleUseCase,

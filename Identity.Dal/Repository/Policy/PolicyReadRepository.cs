@@ -5,15 +5,14 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Identity.Abstractions;
 using Identity.Application.Abstractions.Repositories.Policy;
-using Identity.Domain.Entities;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications;
 using Identity.Domain.Specifications.Policy;
 using Microsoft.EntityFrameworkCore;
 
-namespace Identity.Dal.Repository;
+namespace Identity.Dal.Repository.Policy;
 
-public class PolicyReadRepository : GenericReadRepository<Policy, Guid>, IPolicyReadRepository
+public class PolicyReadRepository : GenericReadRepository<Domain.Entities.Policy, Guid>, IPolicyReadRepository
 {
     private readonly IMapper _mapper;
 
@@ -24,14 +23,14 @@ public class PolicyReadRepository : GenericReadRepository<Policy, Guid>, IPolicy
 
     public async Task<bool> IsPolicyExistAsync(Guid id, CancellationToken cancellationToken)
     {
-        var policy = await FirstOrDefaultAsync(new EntityByKeySpecification<Policy, Guid>(id), cancellationToken);
+        var policy = await FirstOrDefaultAsync(new EntityByKeySpecification<Domain.Entities.Policy, Guid>(id), cancellationToken);
 
         return policy is not null;
     }
 
     public async Task<TInfo> GetPolicyByIdAsync<TInfo>(Guid id, CancellationToken cancellationToken)
     {
-        var policyInfo = await QueryBy(new EntityByKeySpecification<Policy, Guid>(id))
+        var policyInfo = await QueryBy(new EntityByKeySpecification<Domain.Entities.Policy, Guid>(id))
             .ProjectTo<TInfo>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
 

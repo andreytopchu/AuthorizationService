@@ -1,11 +1,11 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Identity.Application.Abstractions.Models.Command.Client;
 using Identity.Application.Abstractions.Models.Query.Client;
 using Identity.Application.Abstractions.UseCases;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications.Client;
 using IdentityServer4.EntityFramework.DbContexts;
-using IdentityServer4.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Application.UseCases.Client;
@@ -40,23 +40,7 @@ public class AddClientUseCase : IUseCase<IAddClientCommand, ClientInfo>
 
     private async Task<ClientInfo> GetClientById(string clientId, CancellationToken cancellationToken)
     {
-        var client = await _dbContext.Clients.Where(new ClientByClientIdSpecification(clientId)).FirstAsync(cancellationToken);
-
-        return new ClientInfo
-        {
-            ClientId = client.ClientId,
-            ClientName = client.ClientName,
-            ApiSecrets = client.ClientSecrets.Select(x => x.Value).ToArray(),
-            AccessTokenType = (AccessTokenType) client.AccessTokenType,
-            AllowedGrantTypes = client.AllowedGrantTypes.Select(x => x.GrantType).ToArray(),
-            AllowOfflineAccess = client.AllowOfflineAccess,
-            UpdateAccessTokenClaimsOnRefresh = client.UpdateAccessTokenClaimsOnRefresh,
-            RefreshTokenUsage = (TokenUsage) client.RefreshTokenUsage,
-            RefreshTokenExpiration = (TokenExpiration) client.RefreshTokenExpiration,
-            AccessTokenLifetime = client.AccessTokenLifetime,
-            AbsoluteRefreshTokenLifetime = client.AbsoluteRefreshTokenLifetime,
-            SlidingRefreshTokenLifetime = client.SlidingRefreshTokenLifetime,
-            IsEnabled = client.Enabled
-        };
+        return await _dbContext.Clients.Where(new ClientByClientIdSpecification(clientId))
+            .ProjectTo<ClientInfo>(_mapper.ConfigurationProvider).FirstAsync(cancellationToken);
     }
 }

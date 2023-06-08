@@ -1,6 +1,8 @@
-﻿using Identity.Application.Abstractions.Enum;
+﻿using System;
+using System.Collections.Generic;
+using Identity.Dal.Enum;
 
-namespace Identity.Application.Abstractions;
+namespace Identity.Dal;
 
 public interface IEntityChangesTrigger
 {

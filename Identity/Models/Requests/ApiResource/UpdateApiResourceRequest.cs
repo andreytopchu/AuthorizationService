@@ -4,5 +4,5 @@ namespace Identity.Models.Requests.ApiResource;
 
 public class UpdateApiResourceRequest : BaseApiResourceRequest, IUpdateApiResourceCommand
 {
-    public long Id { get; init; }
+    public int Id { get; init; }
 }
