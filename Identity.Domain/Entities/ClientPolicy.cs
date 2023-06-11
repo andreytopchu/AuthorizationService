@@ -9,6 +9,5 @@ public class ClientPolicy : IEntity<Guid>
     public string ClientId { get; set; }
     public Guid PolicyId { get; set; }
 
-    public ICollection<Policy> Policies { get; set; }
-    public ICollection<Client> Clients { get; set; }
+    public Policy Policy { get; set; }
 }

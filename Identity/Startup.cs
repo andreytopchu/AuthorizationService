@@ -1,23 +1,26 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using System;
+using System.IO;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Identity.Application.Extensions;
 using Identity.Dal.Extensions;
 using Identity.ExceptionFilter;
-using Identity.Logger;
-using Identity.Mapping;
 using Identity.Options;
 using Identity.Services;
 using Identity.Services.Extensions;
+using Identity.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Identity;
 
@@ -37,9 +40,6 @@ public class Startup
     {
         app.UsePathBase(new PathString(RootPath)); // for proxy, remove prefix from request (/identity/get == /get)
 
-        // request logger
-        app.UseRequestLogger();
-
         // process exceptions
         app.UseMiddleware<GlobalExceptionMiddleware>();
 
@@ -50,6 +50,10 @@ public class Startup
         app.UseAuthentication();
 
         app.UseEndpoints(builder => { builder.MapDefaultControllerRoute(); });
+
+        //swagger
+        app.UseSwagger();
+        app.UseSwaggerUI();
     }
 
     public void ConfigureServices(IServiceCollection services)
@@ -111,18 +115,38 @@ public class Startup
 
         services.AddAuthentication();
 
-        // automapper
-        services.AddAutoMapper(expression =>
-        {
-            expression.AddMaps(Assembly.GetEntryAssembly());
-            expression.AddProfile(new MainProfile());
-        });
-
         //services
         services.AddIdentityServices();
 
         // core
         services.AddIdentityDal(Configuration.GetConnectionString("DefaultConnection")!);
         services.AddIdentityUseCases();
+
+        // swagger
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+        services.AddSwaggerGen(ConfigureSwagger);
+    }
+
+    protected virtual void ConfigureSwagger(SwaggerGenOptions options)
+    {
+        options.EnableAnnotations();
+        // Игнорим методы не помеченные явно HTTP методом (GET, POST и тд).
+        options.DocInclusionPredicate((_, desc) => desc.HttpMethod != null);
+
+        options.TagActionsBy(
+            api =>
+            {
+                if (api.GroupName != null && !Regex.IsMatch(api.GroupName, @"^\d"))
+                {
+                    return new[] {api.GroupName};
+                }
+
+                if (api.ActionDescriptor is ControllerActionDescriptor controllerActionDescriptor)
+                {
+                    return new[] {controllerActionDescriptor.ControllerName};
+                }
+
+                throw new InvalidOperationException("Unable to determine tag for endpoint.");
+            });
     }
 }

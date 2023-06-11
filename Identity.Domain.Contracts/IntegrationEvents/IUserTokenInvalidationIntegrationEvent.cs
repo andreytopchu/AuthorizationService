@@ -1,8 +1,6 @@
-using MassTransit;
-
 namespace Identity.Domain.Contracts.IntegrationEvents;
 
-public interface IUserTokenInvalidationIntegrationEvent : IConsumer
+public interface IUserTokenInvalidationIntegrationEvent
 {
     Guid[] UserIds { get; }
 }

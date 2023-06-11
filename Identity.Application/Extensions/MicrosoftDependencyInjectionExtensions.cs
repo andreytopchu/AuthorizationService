@@ -1,4 +1,5 @@
-﻿using Identity.Application.Abstractions.Models.Command.ApiResource;
+﻿using Dex.Cap.Outbox.Interfaces;
+using Identity.Application.Abstractions.Models.Command.ApiResource;
 using Identity.Application.Abstractions.Models.Command.Client;
 using Identity.Application.Abstractions.Models.Command.Policy;
 using Identity.Application.Abstractions.Models.Command.Role;
@@ -9,6 +10,8 @@ using Identity.Application.Abstractions.Models.Query.Policy;
 using Identity.Application.Abstractions.Models.Query.Role;
 using Identity.Application.Abstractions.Models.Query.User;
 using Identity.Application.Abstractions.UseCases;
+using Identity.Application.IntegrationEvents;
+using Identity.Application.Outbox;
 using Identity.Application.UseCases.ApiResource;
 using Identity.Application.UseCases.Client;
 using Identity.Application.UseCases.Policy;
@@ -42,6 +45,9 @@ public static class MicrosoftDependencyInjectionExtensions
         services.AddScoped<IUseCase<IAddUserCommand, UserInfo>, AddUserUseCase>();
         services.AddScoped<IUseCase<IUpdateUserCommand, UserInfo>, UpdateUserUseCase>();
         services.AddScoped<IUseCase<IDeleteUserCommand>, DeleteUserUseCase>();
+
+        // outbox
+        services.AddScoped<IOutboxMessageHandler<UserTokenInvalidationIntegrationEvent>, InvalidateUserTokenHandler>();
 
         return services;
     }

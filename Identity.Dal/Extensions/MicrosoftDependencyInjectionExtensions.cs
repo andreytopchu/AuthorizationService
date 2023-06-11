@@ -4,13 +4,11 @@ using Dex.Cap.Outbox.Ef;
 using Dex.Cap.Outbox.Interfaces;
 using Identity.Abstractions;
 using Identity.Abstractions.Repository;
-using Identity.Application.Abstractions.Repositories.ApiResource;
 using Identity.Application.Abstractions.Repositories.Policy;
 using Identity.Application.Abstractions.Repositories.Role;
 using Identity.Application.Abstractions.Repositories.User;
 using Identity.Dal.Interceptors;
 using Identity.Dal.Repository;
-using Identity.Dal.Repository.ApiResource;
 using Identity.Dal.Repository.Policy;
 using Identity.Dal.Repository.Role;
 using Identity.Dal.Repository.User;
@@ -19,7 +17,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using Npgsql;
-using Shared.Outbox;
 
 namespace Identity.Dal.Extensions;
 
@@ -66,7 +63,7 @@ public static class MicrosoftDependencyInjectionExtensions
         services.RegisterGenericRepositories();
     }
 
-    private static void RegisterDbContext<TDbContext>(this IServiceCollection services, string connectionString,
+    public static void RegisterDbContext<TDbContext>(this IServiceCollection services, string connectionString,
         int maxRetryCount = 3, TimeSpan maxRetryDelay = default)
         where TDbContext : DbContext
     {
@@ -131,8 +128,6 @@ public static class MicrosoftDependencyInjectionExtensions
             .AddScoped<IRoleWriteRepository, RoleWriteRepository>()
             .AddScoped<IPolicyReadRepository, PolicyReadRepository>()
             .AddScoped<IPolicyWriteRepository, PolicyWriteRepository>()
-            .AddScoped<IApiResourceReadRepository, ApiResourceReadRepository>()
-            .AddScoped<IApiResourceWriteRepository, ApiResourceWriteRepository>()
             .AddScoped<IUserReadRepository, UserReadRepository>()
             .AddScoped<IUserWriteRepository, UserWriteRepository>();
     }

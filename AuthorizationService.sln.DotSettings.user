@@ -4,4 +4,10 @@
   &lt;Assembly Path="C:\Users\andre\.nuget\packages\microsoft.entityframeworkcore\7.0.5\lib\net6.0\Microsoft.EntityFrameworkCore.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\andre\.nuget\packages\identityserver4.entityframework.storage\4.1.2\lib\netstandard2.0\IdentityServer4.EntityFramework.Storage.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\andre\.nuget\packages\identityserver4.storage\4.1.2\lib\netstandard2.0\IdentityServer4.Storage.dll" /&gt;&#xD;
+  &lt;PhysicalFolder Path="C:\Users\andre\.nuget\packages\dex.cap.common.ef\1.1.2" Loaded="True" /&gt;&#xD;
+  &lt;PhysicalFolder Path="C:\Users\andre\.nuget\packages\dex.cap.common.ef\1.3.4" Loaded="True" /&gt;&#xD;
+  &lt;PhysicalFolder Path="C:\Users\andre\.nuget\packages\dex.cap.common.ef\1.3.5" Loaded="True" /&gt;&#xD;
+  &lt;PhysicalFolder Path="C:\Users\andre\.nuget\packages\dex.cap.common.ef\1.3.6" Loaded="True" /&gt;&#xD;
+  &lt;PhysicalFolder Path="C:\Users\andre\.nuget\packages\dex.cap.common.ef\2.1.1" Loaded="True" /&gt;&#xD;
+  &lt;PhysicalFolder Path="C:\Users\andre\.nuget\packages\dex.cap.common.ef\2.3.6" Loaded="True" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>

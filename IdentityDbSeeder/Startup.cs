@@ -1,6 +1,8 @@
 ﻿using System;
 using Dex.Extensions;
+using Identity.Dal;
 using Identity.Dal.ConfigurationDb;
+using Identity.Dal.Extensions;
 using Identity.Dal.PersistedGrantDb;
 using IdentityDbSeeder.SeedData;
 using IdentityServer4.EntityFramework.Storage;
@@ -26,6 +28,7 @@ public class Startup
 
         services.AddScoped<ConfigurationDbSeeder>();
         services.AddScoped<PersistedGrantDbSeeder>();
+        services.AddScoped<SeedData.IdentityDbSeeder>();
     }
 
     private void AddDbContexts(IServiceCollection services)
@@ -47,5 +50,7 @@ public class Startup
                 optionsBuilder =>
                     optionsBuilder.MigrationsAssembly(typeof(InitPersistedGrantDbContext).Assembly.GetName().Name));
         });
+
+        services.RegisterDbContext<IdentityDbContext>(connectionString!);
     }
 }

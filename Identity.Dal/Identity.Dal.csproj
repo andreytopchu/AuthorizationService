@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -20,7 +20,7 @@
       <PackageReference Include="Dex.Cap.Outbox.AspNetScheduler" Version="2.3.28" />
       <PackageReference Include="Dex.Cap.Outbox.Ef" Version="2.5.10" />
       <PackageReference Include="Dex.Ef" Version="1.1.25" />
-      <PackageReference Include="MassTransit" Version="7.3.1" />
+      <PackageReference Include="MassTransit" Version="8.0.9" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
     </ItemGroup>

@@ -1,35 +1,32 @@
 using AutoMapper;
-using Identity.Abstractions;
+using AutoMapper.QueryableExtensions;
 using Identity.Application.Abstractions.Models.Command.ApiResource;
 using Identity.Application.Abstractions.Models.Query.ApiResource;
-using Identity.Application.Abstractions.Repositories.ApiResource;
 using Identity.Application.Abstractions.UseCases;
 using Identity.Domain.Exceptions;
-using Identity.Domain.Specifications;
+using Identity.Domain.Specifications.ApiResource;
+using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Application.UseCases.ApiResource;
 
 public class UpdateApiResourceUseCase : IUseCase<IUpdateApiResourceCommand, ApiResourceInfo>
 {
-    private readonly IApiResourceWriteRepository _apiResourceWriteRepository;
+    private readonly ConfigurationDbContext _dbContext;
     private readonly IMapper _mapper;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateApiResourceUseCase(IApiResourceWriteRepository apiResourceWriteRepository, IMapper mapper,
-        IUnitOfWork unitOfWork)
+    public UpdateApiResourceUseCase(ConfigurationDbContext dbContext, IMapper mapper)
     {
+        _dbContext = dbContext;
         _mapper = mapper;
-        _apiResourceWriteRepository = apiResourceWriteRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<ApiResourceInfo> Process(IUpdateApiResourceCommand arg, CancellationToken cancellationToken)
     {
         if (arg == null) throw new ArgumentNullException(nameof(arg));
 
-        var apiResource = await _apiResourceWriteRepository.Read.FirstOrDefaultAsync(new EntityByKeySpecification<Domain.Entities.ApiResource, int>(arg.Id),
-            cancellationToken);
+        var apiResource = await _dbContext.ApiResources.Where(new ApiResourceByIdSpecification(arg.Id)).FirstOrDefaultAsync(cancellationToken);
 
         if (apiResource is null)
         {
@@ -53,14 +50,16 @@ public class UpdateApiResourceUseCase : IUseCase<IUpdateApiResourceCommand, ApiR
 
         _mapper.Map(arg, apiResource);
 
-        await _apiResourceWriteRepository.UpdateAsync(apiResource, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _dbContext.Update(apiResource);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return await GetApiResourceById(apiResource.Id, cancellationToken);
     }
 
     private async Task<ApiResourceInfo> GetApiResourceById(int id, CancellationToken cancellationToken)
     {
-        return await _apiResourceWriteRepository.Read.GetApiResourceById<ApiResourceInfo>(id, cancellationToken);
+        return await _dbContext.ApiResources.Where(new ApiResourceByIdSpecification(id))
+            .ProjectTo<ApiResourceInfo>(_mapper.ConfigurationProvider)
+            .FirstAsync(cancellationToken);
     }
 }

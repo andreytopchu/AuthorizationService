@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Dex.Cap.Outbox.Interfaces;
 using MassTransit;
 
-namespace Shared.Outbox
+namespace Identity.Dal
 {
     /// <summary>
     /// Автоматически публикует объект, из аутбокса в очередь, заинтересованные сервисы могут получать эти события

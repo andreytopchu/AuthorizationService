@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Identity.Abstractions;
 using Identity.Dal.Extensions;
 using Identity.Domain.Exceptions;
@@ -51,12 +50,6 @@ namespace Identity.Dal
                     throw;
                 }
             }
-        }
-
-        public Task ExecuteInTransaction(IsolationLevel isolationLevel, Func<CancellationToken, Task> action, CancellationToken cancellationToken)
-        {
-            return Database.CreateExecutionStrategy()
-                .ExecuteInTransactionScopeAsync(action, TransactionScopeOption.Required, isolationLevel, cancellationToken);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

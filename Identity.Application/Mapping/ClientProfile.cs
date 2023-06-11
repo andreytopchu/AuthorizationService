@@ -3,7 +3,7 @@ using Identity.Application.Abstractions.Models.Command.Client;
 using Identity.Application.Abstractions.Models.Query.Client;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
-using Client = Identity.Domain.Entities.Client;
+using Client = IdentityServer4.EntityFramework.Entities.Client;
 
 namespace Identity.Application.Mapping;
 

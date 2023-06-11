@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -9,14 +9,17 @@
     <ItemGroup>
       <ProjectReference Include="..\Identity.Abstractions\Identity.Abstractions.csproj" />
       <ProjectReference Include="..\Identity.Application.Abstractions\Identity.Application.Abstractions.csproj" />
+      <ProjectReference Include="..\Identity.Dal\Identity.Dal.csproj" />
       <ProjectReference Include="..\Identity.Domain.Contracts\Identity.Domain.Contracts.csproj" />
       <ProjectReference Include="..\Identity.Domain.Specifications\Identity.Domain.Specifications.csproj" />
       <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
+      <ProjectReference Include="..\Identity.Services\Identity.Services.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
       <PackageReference Include="Dex.Cap.Outbox" Version="2.3.7" />
+      <PackageReference Include="MassTransit" Version="8.0.9" />
     </ItemGroup>
 
 </Project>

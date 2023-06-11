@@ -1,4 +1,5 @@
 using System;
+using Dex.Cap.Outbox.Ef;
 using Identity.Dal.EntityConfigurations;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +20,9 @@ public class IdentityDbContext : BaseDbContext<IdentityDbContext>
         modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new RoleEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new PolicyEntityTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new ServicePolicyEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ClientPolicyEntityTypeConfiguration());
 
+        modelBuilder.OutboxModelCreating();
         base.OnModelCreating(modelBuilder);
     }
 }

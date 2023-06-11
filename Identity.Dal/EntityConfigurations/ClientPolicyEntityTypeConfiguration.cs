@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Identity.Dal.EntityConfigurations;
 
-public class ServicePolicyEntityTypeConfiguration : IEntityTypeConfiguration<ClientPolicy>
+public class ClientPolicyEntityTypeConfiguration : IEntityTypeConfiguration<ClientPolicy>
 {
     public void Configure(EntityTypeBuilder<ClientPolicy> builder)
     {
@@ -20,7 +20,6 @@ public class ServicePolicyEntityTypeConfiguration : IEntityTypeConfiguration<Cli
 
         builder.HasKey(e => e.Id);
 
-        builder.HasMany(e => e.Policies).WithMany(e => e.Clients);
-        builder.HasMany(e => e.Clients).WithMany(e => e.Policies);
+        builder.HasOne(e => e.Policy).WithMany(e => e.Clients).HasForeignKey(x=>x.PolicyId);
     }
 }

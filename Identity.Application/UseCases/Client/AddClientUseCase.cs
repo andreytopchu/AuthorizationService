@@ -27,10 +27,10 @@ public class AddClientUseCase : IUseCase<IAddClientCommand, ClientInfo>
 
         if (_dbContext.Clients.Where(new ClientByClientIdSpecification(arg.ClientId)).Any())
         {
-            throw new EntityAlreadyExistsException<Domain.Entities.Client>(arg.ClientId);
+            throw new EntityAlreadyExistsException<IdentityServer4.EntityFramework.Entities.Client>(arg.ClientId);
         }
 
-        var client = _mapper.Map<Domain.Entities.Client>(arg);
+        var client = _mapper.Map<IdentityServer4.EntityFramework.Entities.Client>(arg);
 
         _dbContext.Clients.Add(client);
         await _dbContext.SaveChangesAsync(cancellationToken);

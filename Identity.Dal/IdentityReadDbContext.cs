@@ -20,7 +20,7 @@ internal class IdentityReadDbContext : BaseDbContext<IdentityReadDbContext>
         modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new RoleEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new PolicyEntityTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new ServicePolicyEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ClientPolicyEntityTypeConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }
