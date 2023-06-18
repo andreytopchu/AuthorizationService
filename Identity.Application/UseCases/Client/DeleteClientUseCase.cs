@@ -1,16 +1,16 @@
 using Identity.Application.Abstractions.Models.Command.Client;
 using Identity.Application.Abstractions.UseCases;
+using Identity.Dal;
 using Identity.Domain.Exceptions;
-using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Application.UseCases.Client;
 
 public class DeleteClientUseCase : IUseCase<IDeleteClientCommand>
 {
-    private readonly ConfigurationDbContext _dbContext;
+    private readonly IdentityConfigurationDbContext _dbContext;
 
-    public DeleteClientUseCase(ConfigurationDbContext dbContext)
+    public DeleteClientUseCase(IdentityConfigurationDbContext dbContext)
     {
         _dbContext = dbContext;
     }

@@ -3,9 +3,9 @@ using AutoMapper.QueryableExtensions;
 using Identity.Application.Abstractions.Models.Command.Client;
 using Identity.Application.Abstractions.Models.Query.Client;
 using Identity.Application.Abstractions.UseCases;
+using Identity.Dal;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications.Client;
-using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +13,10 @@ namespace Identity.Application.UseCases.Client;
 
 public class UpdateClientUseCase : IUseCase<IUpdateClientCommand, ClientInfo>
 {
-    private readonly ConfigurationDbContext _dbContext;
+    private readonly IdentityConfigurationDbContext _dbContext;
     private readonly IMapper _mapper;
 
-    public UpdateClientUseCase(ConfigurationDbContext dbContext, IMapper mapper)
+    public UpdateClientUseCase(IdentityConfigurationDbContext dbContext, IMapper mapper)
     {
         _dbContext = dbContext;
         _mapper = mapper;
@@ -49,7 +49,7 @@ public class UpdateClientUseCase : IUseCase<IUpdateClientCommand, ClientInfo>
 
         //update allowed scopes
         var allowedScopes = clientDb.AllowedScopes.Where(x => arg.AllowedScopes.Contains(x.Scope)).ToList();
-        allowedScopes.AddRange(arg.AllowedGrantTypes.Except(allowedScopes.Select(s => s.Scope)).Select(x => new ClientScope {Scope = x}));
+        allowedScopes.AddRange(arg.AllowedScopes.Except(allowedScopes.Select(s => s.Scope)).Select(x => new ClientScope {Scope = x}));
         clientDb.AllowedScopes = allowedScopes;
 
         _mapper.Map(arg, clientDb);

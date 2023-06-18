@@ -1,15 +1,24 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Dex.SecurityToken.DistributedStorage;
+using Dex.SecurityTokenProvider.Extensions;
+using Dex.SecurityTokenProvider.Options;
+using Identity.Application.Abstractions.Options;
 using Identity.Application.Extensions;
+using Identity.Dal;
 using Identity.Dal.Extensions;
 using Identity.ExceptionFilter;
+using Identity.Logger;
 using Identity.Options;
 using Identity.Services;
 using Identity.Services.Extensions;
 using Identity.Swagger;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -27,6 +36,7 @@ namespace Identity;
 public class Startup
 {
     private const string RootPath = "/identity";
+    private const string ApplicationName = "Identity service";
     private IWebHostEnvironment Environment { get; }
     private IConfiguration Configuration { get; }
 
@@ -42,6 +52,9 @@ public class Startup
 
         // process exceptions
         app.UseMiddleware<GlobalExceptionMiddleware>();
+
+        // request logger
+        app.UseRequestLogger();
 
         app.UseStaticFiles();
 
@@ -59,13 +72,18 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         // configuration
-        services.AddOptions<IdentityOptions>()
-            .Configure(options => options.ProviderName = "template-providerName");
+        services.AddOptions<IdentityOptions>().Configure(options => options.ProviderName = "identity-providerName");
+        services.Configure<TokenOptions>(Configuration.GetSection(nameof(TokenOptions)));
+        services.Configure<EmailOptions>(Configuration.GetSection(nameof(TokenOptions)));
 
         // controllers
-        services.AddControllersWithViews();
-
-        services.AddIdentityServices();
+        services.AddControllersWithViews().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        });
 
         // identity
         var connectionString = Configuration.GetConnectionString("DefaultConnection");
@@ -80,12 +98,12 @@ public class Startup
                 options.EmitStaticAudienceClaim = false;
             })
             // this adds the config data from DB (clients, resources, CORS)
-            .AddConfigurationStore(options =>
+            .AddConfigurationStore<IdentityConfigurationDbContext>(options =>
             {
                 options.ConfigureDbContext = b =>
                     b.UseNpgsql(connectionString, optionsBuilder =>
                     {
-                        optionsBuilder.MigrationsAssembly(GetType().Assembly.FullName);
+                        optionsBuilder.MigrationsAssembly(typeof(IdentityConfigurationDbContext).Assembly.FullName);
                         optionsBuilder.EnableRetryOnFailure();
                     });
             })
@@ -116,7 +134,7 @@ public class Startup
         services.AddAuthentication();
 
         //services
-        services.AddIdentityServices();
+        services.AddIdentityServices(Environment);
 
         // core
         services.AddIdentityDal(Configuration.GetConnectionString("DefaultConnection")!);
@@ -125,6 +143,12 @@ public class Startup
         // swagger
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
         services.AddSwaggerGen(ConfigureSwagger);
+
+        //token provider
+        services.AddSecurityTokenProvider(Configuration.GetSection(nameof(TokenProviderOptions)));
+        services.RegisterDbContext<SecurityTokenDbContext>(Configuration.GetConnectionString("SecurityProviderConnection"));
+        services.AddDataProtection().PersistKeysToDbContext<SecurityTokenDbContext>().SetApplicationName(ApplicationName);
+        services.AddDistributedTokenInfoStorage();
     }
 
     protected virtual void ConfigureSwagger(SwaggerGenOptions options)

@@ -1,6 +1,6 @@
 using Dex.Cap.Outbox.Interfaces;
+using Identity.Application.Abstractions.Services;
 using Identity.Application.IntegrationEvents;
-using Identity.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Identity.Application.Outbox;

@@ -19,6 +19,7 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
       <PackageReference Include="Dex.Cap.Outbox" Version="2.3.7" />
+      <PackageReference Include="Dex.MassTransit.Rabbit" Version="2.1.28" />
       <PackageReference Include="MassTransit" Version="8.0.9" />
     </ItemGroup>
 

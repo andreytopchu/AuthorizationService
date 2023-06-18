@@ -4,5 +4,4 @@ namespace Identity.Models.Requests.Client;
 
 public class UpdateClientRequest : BaseClientRequest, IUpdateClientCommand
 {
-    public long Id { get; init; }
 }

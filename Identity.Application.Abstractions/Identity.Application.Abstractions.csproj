@@ -7,17 +7,23 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Dex.SecurityTokenProvider" Version="2.2.6" />
       <PackageReference Include="IdentityServer4.Storage" Version="4.1.2" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Models\Admin\" />
-      <Folder Include="Models\Command\" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Identity.Abstractions\Identity.Abstractions.csproj" />
       <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Models\Command\Email\SendEmailCommand.cs">
+        <DependentUpon>ISendEmailCommand.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

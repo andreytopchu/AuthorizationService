@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Identity.Dal.ConfigurationDb
 {
-    [DbContext(typeof(ConfigurationDbContext))]
+    [DbContext(typeof(IdentityConfigurationDbContext))]
     partial class ConfigurationDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

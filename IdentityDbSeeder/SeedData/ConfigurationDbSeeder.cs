@@ -1,15 +1,15 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Identity.Dal;
 using IdentityDbSeeder.Seeder;
-using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using Serilog;
 
 namespace IdentityDbSeeder.SeedData;
 
-public class ConfigurationDbSeeder : BaseEfSeeder<ConfigurationDbContext>, IDbSeeder
+public class ConfigurationDbSeeder : BaseEfSeeder<IdentityConfigurationDbContext>, IDbSeeder
 {
-    public ConfigurationDbSeeder(ConfigurationDbContext dbContext) : base(dbContext)
+    public ConfigurationDbSeeder(IdentityConfigurationDbContext dbContext) : base(dbContext)
     {
     }
 

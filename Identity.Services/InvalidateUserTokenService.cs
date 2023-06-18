@@ -1,4 +1,5 @@
 ﻿using Dex.Extensions;
+using Identity.Application.Abstractions.Services;
 using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.Extensions.Logging;
 

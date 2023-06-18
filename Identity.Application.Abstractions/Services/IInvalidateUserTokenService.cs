@@ -1,4 +1,4 @@
-﻿namespace Identity.Services
+﻿namespace Identity.Application.Abstractions.Services
 {
     public interface IInvalidateUserTokenService
     {

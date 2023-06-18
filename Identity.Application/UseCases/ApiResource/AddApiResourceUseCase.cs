@@ -3,19 +3,19 @@ using AutoMapper.QueryableExtensions;
 using Identity.Application.Abstractions.Models.Command.ApiResource;
 using Identity.Application.Abstractions.Models.Query.ApiResource;
 using Identity.Application.Abstractions.UseCases;
+using Identity.Dal;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications.ApiResource;
-using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Application.UseCases.ApiResource;
 
 public class AddApiResourceUseCase : IUseCase<IAddApiResourceCommand, ApiResourceInfo>
 {
-    private readonly ConfigurationDbContext _dbContext;
+    private readonly IdentityConfigurationDbContext _dbContext;
     private readonly IMapper _mapper;
 
-    public AddApiResourceUseCase(ConfigurationDbContext dbContext, IMapper mapper)
+    public AddApiResourceUseCase(IdentityConfigurationDbContext dbContext, IMapper mapper)
     {
         _dbContext = dbContext;
         _mapper = mapper;

@@ -4,6 +4,7 @@ using System.IO;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Identity.Logger;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
@@ -68,6 +69,7 @@ public class IdentityHost
 
                 config.AddConfiguration(configuration);
             })
+            .ConfigureLogger()
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.ConfigureKestrel(ConfigureKestrel);

@@ -17,9 +17,10 @@ public class PolicyProfile : Profile
 
         CreateMap<IUpdatePolicyCommand, Policy>(MemberList.Source)
             .ForMember(x => x.Clients, expression => expression.MapFrom(x =>
-                x.ClientIds.Select(id => new ClientPolicy {ClientId = id, PolicyName = string.Concat(new[] {id, "_", x.Name})}).ToArray()));;
+                x.ClientIds.Select(id => new ClientPolicy {ClientId = id, PolicyName = string.Concat(new[] {id, "_", x.Name})}).ToArray()));
 
-        CreateMap<Policy, PolicyInfo>();
+        CreateMap<Policy, PolicyInfo>()
+            .ForMember(x => x.ClientPolicyInfos, expression => expression.MapFrom(x => x.Clients));
 
         CreateMap<ClientPolicy, ClientPolicyInfo>();
 

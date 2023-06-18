@@ -64,6 +64,36 @@ public class UserController : BaseController
     }
 
     /// <summary>
+    /// Генерация нового приглашения с новым токеном активации
+    /// </summary>
+    /// <param name="userId">Id пользователя в БД</param>
+    /// <param name="updateUserInvitationUseCase">UseCase генерации нового приглашения с новым токеном активации</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Информация о пользователе</returns>
+    /// <response code="200">Приглашение успешно сгенерировано</response>
+    /// <response code="400">Некорректный запрос</response>
+    /// <response code="401">Отсутствует авторизация в систему</response>
+    /// <response code="403">Нет прав на совершение действия</response>
+    /// <response code="404">Запись не найдена</response>
+    /// <response code="409">Конфликт</response>
+    /// <response code="500">Ошибка сервера</response>
+    [HttpPut]
+    [ProducesResponseType(typeof(UserInfo), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserInfo>> UpdateInvitation([FromBody] Guid userId,
+        [FromServices] IUseCase<IUpdateUserInvitationCommand, UserInfo> updateUserInvitationUseCase, CancellationToken cancellationToken)
+    {
+        if (updateUserInvitationUseCase == null) throw new ArgumentNullException(nameof(updateUserInvitationUseCase));
+        if (userId == Guid.Empty) throw new ArgumentException(null, nameof(userId));
+
+        return Ok(await updateUserInvitationUseCase.Process(new UpdateUserInvitationRequest
+        {
+            UserId = userId
+        }, cancellationToken));
+    }
+
+    /// <summary>
     /// Удаление пользователя
     /// </summary>
     /// <param name="id">Id пользователя</param>

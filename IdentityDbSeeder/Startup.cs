@@ -37,7 +37,7 @@ public class Startup
         if (connectionString!.IsNullOrEmpty())
             throw new Exception("DefaultConnection is required");
 
-        services.AddConfigurationDbContext(options =>
+        services.AddConfigurationDbContext<IdentityConfigurationDbContext>(options =>
         {
             options.ConfigureDbContext = builder => builder.UseNpgsql(connectionString,
                 optionsBuilder =>

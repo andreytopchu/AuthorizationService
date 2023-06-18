@@ -10,4 +10,5 @@ public interface IAddUserCommand : IUseCaseArg
     public string? MiddleName { get; init; }
     public string? LastName { get; init; }
     public Guid RoleId { get; init; }
+    IIdentityUriCommand? IdentityUri { get; set; }
 }

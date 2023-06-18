@@ -3,9 +3,9 @@ using AutoMapper.QueryableExtensions;
 using Identity.Application.Abstractions.Models.Command.ApiResource;
 using Identity.Application.Abstractions.Models.Query.ApiResource;
 using Identity.Application.Abstractions.UseCases;
+using Identity.Dal;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications.ApiResource;
-using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +13,10 @@ namespace Identity.Application.UseCases.ApiResource;
 
 public class UpdateApiResourceUseCase : IUseCase<IUpdateApiResourceCommand, ApiResourceInfo>
 {
-    private readonly ConfigurationDbContext _dbContext;
+    private readonly IdentityConfigurationDbContext _dbContext;
     private readonly IMapper _mapper;
 
-    public UpdateApiResourceUseCase(ConfigurationDbContext dbContext, IMapper mapper)
+    public UpdateApiResourceUseCase(IdentityConfigurationDbContext dbContext, IMapper mapper)
     {
         _dbContext = dbContext;
         _mapper = mapper;

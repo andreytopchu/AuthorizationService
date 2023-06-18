@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Identity.Dal.ConfigurationDb
 {
-    [DbContext(typeof(ConfigurationDbContext))]
+    [DbContext(typeof(IdentityConfigurationDbContext))]
     [Migration("20210311101231_InitConfigurationDbContext")]
     partial class InitConfigurationDbContext
     {

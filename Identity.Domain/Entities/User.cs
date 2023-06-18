@@ -17,4 +17,9 @@ public sealed class User : ICreatedUtc, IUpdatedUtc, IDeletable, IEntity<Guid>
     public DateTime? EmailConfirmed { get; set; }
     public string Password { get; set; } = null!;
     public Role? Role { get; set; }
+
+    public string GetFullName()
+    {
+        return string.Join(' ', LastName, FirstName, MiddleName);
+    }
 }
