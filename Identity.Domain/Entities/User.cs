@@ -12,8 +12,8 @@ public sealed class User : ICreatedUtc, IUpdatedUtc, IDeletable, IEntity<Guid>
     public string? LastName { get; set; }
     public string? MiddleName { get; set; }
     public Guid RoleId { get; set; }
-    public string Phone { get; set; } = null!;
-    public string? Email { get; set; }
+    public string? Phone { get; set; }
+    public string Email { get; set; } = null!;
     public DateTime? EmailConfirmed { get; set; }
     public string Password { get; set; } = null!;
     public Role? Role { get; set; }

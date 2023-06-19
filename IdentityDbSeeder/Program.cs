@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using IdentityDbSeeder.SeedData;
+using IdentityDbSeeder.Seeder;
 
 namespace IdentityDbSeeder;
 
@@ -12,6 +12,7 @@ public static class Program
 
         // аргументы не передаем, иначе затрем БД(из предыдущего сида), если указан ключ --drop
         await SeedRunner.Seed<PersistedGrantDbSeeder>(Array.Empty<string>());
-        await SeedRunner.Seed<SeedData.IdentityDbSeeder>(Array.Empty<string>());
+        await SeedRunner.Seed<Seeder.IdentityDbSeeder>(Array.Empty<string>());
+        await SeedRunner.Seed<SecurityTokenDbSeeder>(Array.Empty<string>());
     }
 }

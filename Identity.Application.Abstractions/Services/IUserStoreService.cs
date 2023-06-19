@@ -9,6 +9,4 @@ public interface IUserStoreService
     public Task<User?> FindBySubjectId(Subject subject);
 
     public Task<User?> FindByUsername(string username);
-
-    public Task<User?> FindByExternalProvider(string userId, string provider);
 }

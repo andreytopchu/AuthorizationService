@@ -16,7 +16,7 @@ public sealed class Role : ICreatedUtc, IUpdatedUtc, IDeletable, IEntity<Guid>
 
     public string? Description { get; set; }
 
-    public ICollection<User> Users { get; set; } = Array.Empty<User>();
+    public ICollection<User> Users { get; set; } = new List<User>();
 
-    public ICollection<Policy> Policies { get; set; } = Array.Empty<Policy>();
+    public ICollection<Policy> Policies { get; set; } = new List<Policy>();
 }

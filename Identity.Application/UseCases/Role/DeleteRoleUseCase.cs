@@ -33,7 +33,6 @@ internal class DeleteRoleUseCase : IUseCase<IDeleteRoleCommand>
         if (arg == null) throw new ArgumentNullException(nameof(arg));
 
         arg.RoleId.ThrowIfRoleIdIsSuperAdmin();
-        arg.RoleId.ThrowIfRoleIdIsNoAccess();
 
         var userIds = await _userReadRepository.GetUserIdsByRoleAsync(arg.RoleId, cancellationToken);
 

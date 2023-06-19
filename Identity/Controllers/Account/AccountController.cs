@@ -264,7 +264,7 @@ public class AccountController : Controller
             AllowRememberLogin = AccountOptions.AllowRememberLogin,
             EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
             ReturnUrl = returnUrl,
-            Username = context.LoginHint
+            Username = context?.LoginHint ?? string.Empty
         };
     }
 

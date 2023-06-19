@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Dex.Extensions;
 using Dex.SecurityToken.DistributedStorage;
 using Dex.SecurityTokenProvider.Extensions;
 using Dex.SecurityTokenProvider.Options;
@@ -17,6 +19,10 @@ using Identity.Options;
 using Identity.Services;
 using Identity.Services.Extensions;
 using Identity.Swagger;
+using IdentityModel.AspNetCore.AccessTokenValidation;
+using IdentityModel.AspNetCore.OAuth2Introspection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -29,6 +35,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Identity;
@@ -40,6 +47,15 @@ public class Startup
     private IWebHostEnvironment Environment { get; }
     private IConfiguration Configuration { get; }
 
+    /// <summary>
+    /// Будет проинициализирован только после вызова Configure
+    /// </summary>
+    private IServiceProvider? Sp { get; set; }
+
+    private AuthorizationSettings AuthorizationSettings =>
+        Sp?.GetRequiredService<IOptions<AuthorizationSettings>>().Value
+        ?? throw new InvalidOperationException("Can't get AuthorizationSettings, please InitServiceProvider() from Configure()");
+
     public Startup(IWebHostEnvironment environment, IConfiguration configuration)
     {
         Environment = environment;
@@ -48,7 +64,16 @@ public class Startup
 
     public void Configure(IApplicationBuilder app)
     {
+        if (app == null) throw new ArgumentNullException(nameof(app));
+
+        InitServiceProvider(app.ApplicationServices);
+
         app.UsePathBase(new PathString(RootPath)); // for proxy, remove prefix from request (/identity/get == /get)
+
+        if (Environment.IsDevelopment())
+        {
+            app.UseMigrationsEndPoint();
+        }
 
         // process exceptions
         app.UseMiddleware<GlobalExceptionMiddleware>();
@@ -61,6 +86,11 @@ public class Startup
         app.UseIdentityServer();
         app.UseRouting();
         app.UseAuthentication();
+        app.UseAuthorization();
+
+        // check automapper config
+        // var provider = app.ApplicationServices.GetRequiredService<IConfigurationProvider>();
+        // provider.AssertConfigurationIsValid();
 
         app.UseEndpoints(builder => { builder.MapDefaultControllerRoute(); });
 
@@ -149,9 +179,23 @@ public class Startup
         services.RegisterDbContext<SecurityTokenDbContext>(Configuration.GetConnectionString("SecurityProviderConnection"));
         services.AddDataProtection().PersistKeysToDbContext<SecurityTokenDbContext>().SetApplicationName(ApplicationName);
         services.AddDistributedTokenInfoStorage();
+
+        // authentication
+        services.Configure<AuthorizationSettings>(Configuration.GetSection(nameof(AuthorizationSettings)));
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, ConfigureJwt)
+            .AddOAuth2Introspection("introspection", ConfigureIntrospection);
+
+        // authorization
+        services.AddAuthorization(ConfigureAuthorization);
     }
 
-    protected virtual void ConfigureSwagger(SwaggerGenOptions options)
+    private void InitServiceProvider(IServiceProvider serviceProvider)
+    {
+        Sp = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+    }
+
+    private void ConfigureSwagger(SwaggerGenOptions options)
     {
         options.EnableAnnotations();
         // Игнорим методы не помеченные явно HTTP методом (GET, POST и тд).
@@ -172,5 +216,113 @@ public class Startup
 
                 throw new InvalidOperationException("Unable to determine tag for endpoint.");
             });
+    }
+
+    private void ConfigureJwt(JwtBearerOptions options)
+    {
+        // options.MetadataAddress = "https://<base.url>/identity/.well-known/openid-configuration";
+        options.Authority = AuthorizationSettings.AuthorityUrl.ToString();
+        options.Audience = AuthorizationSettings.ApiResource;
+        options.RequireHttpsMetadata = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ClockSkew = 1.Minutes()
+        };
+
+        // если токен не содержит точку (это референс токен), уходим на introspection endpoint
+        options.ForwardDefaultSelector = delegate(HttpContext context)
+        {
+            var nextSchema = AuthorizationSettings.UseReferenceToken
+                ? Selector.ForwardReferenceToken("introspection")(context)
+                : null;
+            return nextSchema;
+        };
+    }
+
+    private void ConfigureIntrospection(OAuth2IntrospectionOptions options)
+    {
+        options.Authority = AuthorizationSettings.AuthorityUrl.ToString();
+        options.EnableCaching = AuthorizationSettings.IntrospectionCacheTimeSeconds > 0;
+        options.CacheDuration = TimeSpan.FromSeconds(Math.Max(AuthorizationSettings.IntrospectionCacheTimeSeconds, 10));
+        options.ClientId = AuthorizationSettings.ApiResource;
+        options.ClientSecret = AuthorizationSettings.ApiResourceSecret;
+        options.SaveToken = true;
+    }
+
+    protected virtual void ConfigureAuthorization(AuthorizationOptions options)
+    {
+        if (options == null) throw new ArgumentNullException(nameof(options));
+
+        if (!AuthorizationSettings.ApiScopeRequired.IsNullOrEmpty())
+        {
+            options.AddPolicy("ApiScopeRequired", policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim("scope", AuthorizationSettings.ApiScopeRequired!);
+                Log.Information("Scope policy added - {PolicyName}", "ApiScopeRequired");
+            });
+        }
+
+        if (!AuthorizationSettings.ApiScopeOnlyRequired.IsNullOrEmpty())
+        {
+            foreach (var scope in AuthorizationSettings.ApiScopeOnlyRequired!)
+            {
+                var policyName = "only-" + scope;
+                options.AddPolicy(policyName, policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("scope", scope);
+                });
+                Log.Information("Scope policy added - {PolicyName}", policyName);
+            }
+        }
+
+        if (!AuthorizationSettings.ApiPolicies.IsNullOrEmpty())
+        {
+            const string claimType = "policy";
+
+            foreach (var apiPolicy in AuthorizationSettings.ApiPolicies!)
+            {
+                // fullAccess должен игнорироваться
+                if (apiPolicy == "fullAccess")
+                    continue;
+
+                options.AddPolicy(apiPolicy, policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(claimType);
+
+                    //write включает read
+                    if (apiPolicy.EndsWith(".read", StringComparison.InvariantCulture))
+                    {
+                        var basePolicy = apiPolicy.Replace(".read", string.Empty, StringComparison.InvariantCulture);
+                        policy.RequireAssertion(context =>
+                        {
+                            var policyValue = context.User.Claims.FirstOrDefault(x => x.Type == claimType)?.Value;
+                            return policyValue != null &&
+                                   (policyValue.Contains(apiPolicy, StringComparison.InvariantCulture) ||
+                                    policyValue.Contains($"{basePolicy}.write",
+                                        StringComparison.InvariantCulture) ||
+                                    policyValue.Contains("fullAccess", StringComparison.InvariantCulture));
+                        });
+                    }
+                    else
+                    {
+                        policy.RequireAssertion(context =>
+                        {
+                            var policyValue = context.User.Claims.FirstOrDefault(x => x.Type == claimType)?.Value;
+                            return policyValue != null &&
+                                   (policyValue.Contains(apiPolicy, StringComparison.InvariantCulture) ||
+                                    policyValue.Contains("fullAccess", StringComparison.InvariantCulture));
+                        });
+                    }
+                });
+
+                Log.Information("Policy added - {PolicyName}", apiPolicy);
+            }
+        }
     }
 }

@@ -21,11 +21,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Common.Logging.Serilog" Version="4.4.0"/>
-        <PackageReference Include="Dex.MassTransit.Rabbit" Version="2.1.28"/>
-        <PackageReference Include="Dex.SecurityToken.DistributedStorage" Version="2.2.2"/>
-        <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2"/>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.12"/>
+        <PackageReference Include="Common.Logging.Serilog" Version="4.4.0" />
+        <PackageReference Include="Dex.MassTransit.Rabbit" Version="2.1.28" />
+        <PackageReference Include="Dex.SecurityToken.DistributedStorage" Version="2.2.2" />
+        <PackageReference Include="IdentityModel.AspNetCore.AccessTokenValidation" Version="1.0.0-preview.3" />
+        <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="6.1.0" />
+        <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.12" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.12" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.12">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -34,17 +37,17 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.8"/>
-        <PackageReference Include="Common.Logging" Version="3.4.1"/>
-        <PackageReference Include="Serilog.AspNetCore" Version="6.1.0"/>
-        <PackageReference Include="Serilog.Enrichers.Span" Version="3.0.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.4.0"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.8" />
+        <PackageReference Include="Common.Logging" Version="3.4.1" />
+        <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
+        <PackageReference Include="Serilog.Enrichers.Span" Version="3.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.4.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="PersistedGrantDb\20210311100703_InitPersistedGrantDbContext.Designer.cs"/>
-        <Compile Remove="Migrations\PersistedGrantDb\20210311101016_InitPersistedGrantDbContext.Designer.cs"/>
+        <Compile Remove="PersistedGrantDb\20210311100703_InitPersistedGrantDbContext.Designer.cs" />
+        <Compile Remove="Migrations\PersistedGrantDb\20210311101016_InitPersistedGrantDbContext.Designer.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -54,16 +57,13 @@
         <Content Update="appsettings.Development.local.json">
             <DependentUpon>appsettings.json</DependentUpon>
         </Content>
-        <Content Update="prod-sign-token-key.json">
-            <DependentUpon>sign-token-key.json</DependentUpon>
-        </Content>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Identity.Application\Identity.Application.csproj"/>
-        <ProjectReference Include="..\Identity.Dal\Identity.Dal.csproj"/>
-        <ProjectReference Include="..\Identity.Domain.Contracts\Identity.Domain.Contracts.csproj"/>
-        <ProjectReference Include="..\Identity.Services\Identity.Services.csproj"/>
+        <ProjectReference Include="..\Identity.Application\Identity.Application.csproj" />
+        <ProjectReference Include="..\Identity.Dal\Identity.Dal.csproj" />
+        <ProjectReference Include="..\Identity.Domain.Contracts\Identity.Domain.Contracts.csproj" />
+        <ProjectReference Include="..\Identity.Services\Identity.Services.csproj" />
     </ItemGroup>
 
 </Project>

@@ -41,7 +41,6 @@ internal class UpdateRoleUseCase : IUseCase<IUpdateRoleCommand, RoleInfo>
         var roleId = arg.Id;
 
         roleId.ThrowIfRoleIdIsSuperAdmin();
-        roleId.ThrowIfRoleIdIsNoAccess();
 
         var correlationId = Guid.NewGuid();
 

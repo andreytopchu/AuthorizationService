@@ -4,7 +4,8 @@ using Identity.Dal;
 using Identity.Dal.ConfigurationDb;
 using Identity.Dal.Extensions;
 using Identity.Dal.PersistedGrantDb;
-using IdentityDbSeeder.SeedData;
+using Identity.Services.Extensions;
+using IdentityDbSeeder.Seeder;
 using IdentityServer4.EntityFramework.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +29,10 @@ public class Startup
 
         services.AddScoped<ConfigurationDbSeeder>();
         services.AddScoped<PersistedGrantDbSeeder>();
-        services.AddScoped<SeedData.IdentityDbSeeder>();
+        services.AddScoped<Seeder.IdentityDbSeeder>();
+        services.AddScoped<SecurityTokenDbContext>();
+
+        services.AddIdentityServicesForSeeder();
     }
 
     private void AddDbContexts(IServiceCollection services)
@@ -52,5 +56,6 @@ public class Startup
         });
 
         services.RegisterDbContext<IdentityDbContext>(connectionString!);
+        services.RegisterDbContext<SecurityTokenDbContext>(Configuration.GetConnectionString("SecurityProviderConnection"));
     }
 }

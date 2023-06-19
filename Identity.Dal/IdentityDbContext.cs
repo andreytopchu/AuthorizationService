@@ -1,12 +1,18 @@
 using System;
 using Dex.Cap.Outbox.Ef;
 using Identity.Dal.EntityConfigurations;
+using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Dal;
 
 public class IdentityDbContext : BaseDbContext<IdentityDbContext>
 {
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Policy> Policies => Set<Policy>();
+    public DbSet<ClientPolicy> ClientPolicies => Set<ClientPolicy>();
+
     public IdentityDbContext(DbContextOptions<IdentityDbContext> options)
         : base(options)
     {

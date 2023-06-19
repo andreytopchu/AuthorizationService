@@ -3,9 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Identity.Application.Abstractions.Models.Command.ApiResource;
 using Identity.Application.Abstractions.Models.Query.ApiResource;
+using Identity.Application.Abstractions.Repositories.ApiResource;
 using Identity.Application.Abstractions.UseCases;
 using Identity.ExceptionFilter;
 using Identity.Models.Requests.ApiResource;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +15,18 @@ namespace Identity.Controllers.Admin;
 
 public class ApiResourceController : BaseController
 {
+    [HttpGet]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResourceInfo[]), StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetById([FromServices] IApiResourceReadRepository readRepository, int id,
+        CancellationToken cancellationToken)
+    {
+        if (readRepository == null) throw new ArgumentNullException(nameof(readRepository));
+
+        var result = await readRepository.GetById(id, cancellationToken);
+        return result is not null ? Ok(result) : NotFound();
+    }
+
     /// <summary>
     /// Создание ресурса
     /// </summary>

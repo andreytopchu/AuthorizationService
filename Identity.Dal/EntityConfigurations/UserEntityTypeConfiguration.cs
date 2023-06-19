@@ -17,8 +17,8 @@ public class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
         builder.Property(e => e.CreatedUtc);
         builder.Property(e => e.DeletedUtc);
         builder.Property(e => e.UpdatedUtc);
-        builder.Property(e => e.Phone).IsRequired();
-        builder.Property(e => e.Email);
+        builder.Property(e => e.Phone);
+        builder.Property(e => e.Email).IsRequired();
         builder.Property(e => e.EmailConfirmed);
         builder.Property(e => e.Password).IsRequired();
 

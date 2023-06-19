@@ -24,14 +24,26 @@ public class UserReadRepository : GenericReadRepository<Domain.Entities.User, Gu
         _mapper = mapper;
     }
 
-    public async Task<TInfo> GetUserByIdAsync<TInfo>(Guid employeeId, CancellationToken cancellationToken)
+    public async Task<TInfo> GetUserByIdAsync<TInfo>(Guid userId, CancellationToken cancellationToken)
     {
         var userInfo = await QueryBy(new UndeleteEntitySpecification<Domain.Entities.User>())
             .ProjectTo<TInfo>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (userInfo == null)
-            throw new UserNotFoundException(employeeId);
+            throw new UserNotFoundException(userId);
+
+        return userInfo;
+    }
+
+    public async Task<Domain.Entities.User> GetActiveUserByIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var userInfo = await QueryBy(new ActiveUserByIdSpecification(userId))
+            .Include(x => x.Role).ThenInclude(r => r != null ? r.Policies : null)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (userInfo == null)
+            throw new UserNotFoundException(userId);
 
         return userInfo;
     }

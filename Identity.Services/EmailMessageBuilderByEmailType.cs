@@ -78,7 +78,6 @@ public class EmailMessageBuilderByEmailType : IEmailMessageBuilderByEmailType
 
         return
         (
-            // TODO localize
             "Приглашение пользователя",
             template.Replace("%user.Name%", user.GetFullName(), StringComparison.OrdinalIgnoreCase)
                 .Replace("%linkToLoginPage%", linkToLoginPage, StringComparison.OrdinalIgnoreCase)
@@ -101,7 +100,6 @@ public class EmailMessageBuilderByEmailType : IEmailMessageBuilderByEmailType
 
         return
         (
-            // TODO localize
             "Восстановление пароля",
             template.Replace("%user.Name%", user.GetFullName(), StringComparison.InvariantCulture)
                 .Replace("%linkForRecoveryPassword%", linkForRecoveryPassword, StringComparison.InvariantCulture)

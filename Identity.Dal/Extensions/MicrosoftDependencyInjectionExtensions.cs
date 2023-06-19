@@ -4,11 +4,13 @@ using Dex.Cap.Outbox.Ef;
 using Dex.Cap.Outbox.Interfaces;
 using Identity.Abstractions;
 using Identity.Abstractions.Repository;
+using Identity.Application.Abstractions.Repositories.ApiResource;
 using Identity.Application.Abstractions.Repositories.Policy;
 using Identity.Application.Abstractions.Repositories.Role;
 using Identity.Application.Abstractions.Repositories.User;
 using Identity.Dal.Interceptors;
 using Identity.Dal.Repository;
+using Identity.Dal.Repository.ApiResource;
 using Identity.Dal.Repository.Policy;
 using Identity.Dal.Repository.Role;
 using Identity.Dal.Repository.User;
@@ -129,7 +131,8 @@ public static class MicrosoftDependencyInjectionExtensions
             .AddScoped<IPolicyReadRepository, PolicyReadRepository>()
             .AddScoped<IPolicyWriteRepository, PolicyWriteRepository>()
             .AddScoped<IUserReadRepository, UserReadRepository>()
-            .AddScoped<IUserWriteRepository, UserWriteRepository>();
+            .AddScoped<IUserWriteRepository, UserWriteRepository>()
+            .AddScoped<IApiResourceReadRepository, ApiResourceReadRepository>();
     }
 
     private static void RegisterInterceptors(this IServiceCollection services)
