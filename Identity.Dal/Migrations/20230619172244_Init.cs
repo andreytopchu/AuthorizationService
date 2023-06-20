@@ -5,10 +5,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Identity.Dal.Migrations
 {
-    /// <inheritdoc />
     public partial class Init : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
@@ -50,7 +48,8 @@ namespace Identity.Dal.Migrations
                     CreatedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DeletedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UpdatedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -66,7 +65,8 @@ namespace Identity.Dal.Migrations
                     DeletedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UpdatedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true)
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -74,19 +74,19 @@ namespace Identity.Dal.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClientPolicy",
+                name: "ApiResourcePolicy",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     PolicyName = table.Column<string>(type: "text", nullable: false),
-                    ClientId = table.Column<string>(type: "text", nullable: false),
+                    ResourceName = table.Column<string>(type: "text", nullable: false),
                     PolicyId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClientPolicy", x => x.Id);
+                    table.PrimaryKey("PK_ApiResourcePolicy", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClientPolicy_Policy_PolicyId",
+                        name: "FK_ApiResourcePolicy_Policy_PolicyId",
                         column: x => x.PolicyId,
                         principalTable: "Policy",
                         principalColumn: "Id",
@@ -129,10 +129,11 @@ namespace Identity.Dal.Migrations
                     LastName = table.Column<string>(type: "text", nullable: true),
                     MiddleName = table.Column<string>(type: "text", nullable: true),
                     RoleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Phone = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: true),
+                    Phone = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: false),
                     EmailConfirmed = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Password = table.Column<string>(type: "text", nullable: false)
+                    Password = table.Column<string>(type: "text", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -146,8 +147,8 @@ namespace Identity.Dal.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClientPolicy_PolicyId",
-                table: "ClientPolicy",
+                name: "IX_ApiResourcePolicy_PolicyId",
+                table: "ApiResourcePolicy",
                 column: "PolicyId");
 
             migrationBuilder.CreateIndex(
@@ -254,11 +255,10 @@ namespace Identity.Dal.Migrations
                 column: "UpdatedUtc");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ClientPolicy");
+                name: "ApiResourcePolicy");
 
             migrationBuilder.DropTable(
                 name: "outbox",

@@ -6,5 +6,5 @@ public class PolicyInfo
 {
     public Guid Id { get; init; }
     public string Name { get; init; }
-    public ClientPolicyInfo[] ClientPolicyInfos { get; set; } = Array.Empty<ClientPolicyInfo>();
+    public ApiResourcePolicyInfo[] ApiResourcePolicyInfos { get; set; } = Array.Empty<ApiResourcePolicyInfo>();
 }

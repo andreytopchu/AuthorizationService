@@ -6,6 +6,7 @@ using Identity.Application.Abstractions.Models.Query.ApiResource;
 using Identity.Application.Abstractions.Repositories.ApiResource;
 using Identity.Application.Abstractions.UseCases;
 using Identity.ExceptionFilter;
+using Identity.Models.Requests;
 using Identity.Models.Requests.ApiResource;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,16 +16,45 @@ namespace Identity.Controllers.Admin;
 
 public class ApiResourceController : BaseController
 {
+    /// <summary>
+    /// Получение API ресурса по id
+    /// </summary>
+    /// <param name="id">Id API ресурса</param>
+    /// <param name="readRepository">Репозиторий API ресурсов</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>API ресурс</returns>
+    /// <response code="200">Ресурс успешно возвращены</response>
+    /// <response code="404">Ресурс не найден</response>
     [HttpGet]
-    [Authorize]
-    [ProducesResponseType(typeof(ApiResourceInfo[]), StatusCodes.Status200OK)]
-    public async Task<ActionResult> GetById([FromServices] IApiResourceReadRepository readRepository, int id,
+    [Authorize("apiResource.read")]
+    [ProducesResponseType(typeof(ApiResourceInfo), StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetById([FromQuery] int id, [FromServices] IApiResourceReadRepository readRepository,
         CancellationToken cancellationToken)
     {
         if (readRepository == null) throw new ArgumentNullException(nameof(readRepository));
 
         var result = await readRepository.GetById(id, cancellationToken);
         return result is not null ? Ok(result) : NotFound();
+    }
+
+    /// <summary>
+    /// Получение API ресурсов
+    /// </summary>
+    /// <param name="request">Фильтры для пагинации</param>
+    /// <param name="readRepository">Репозиторий API ресурсов</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Список API ресурсов</returns>
+    /// <response code="200">Ресурсы успешно возвращены</response>
+    [HttpGet]
+    [Authorize("apiResource.read")]
+    [ProducesResponseType(typeof(ApiResourceInfo[]), StatusCodes.Status200OK)]
+    public async Task<ActionResult> Get([FromQuery] PaginationFilterRequest request, [FromServices] IApiResourceReadRepository readRepository,
+        CancellationToken cancellationToken)
+    {
+        if (readRepository == null) throw new ArgumentNullException(nameof(readRepository));
+
+        var result = await readRepository.Get(request, cancellationToken);
+        return Ok(result);
     }
 
     /// <summary>
@@ -41,6 +71,7 @@ public class ApiResourceController : BaseController
     /// <response code="409">Конфликт</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpPost]
+    [Authorize("apiResource.write")]
     [ProducesResponseType(typeof(ApiResourceInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ApiResourceInfo>> AddResource([FromBody] AddApiResourceRequest newResource,
@@ -67,6 +98,7 @@ public class ApiResourceController : BaseController
     /// <response code="409">Конфликт</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpPut]
+    [Authorize("apiResource.write")]
     [ProducesResponseType(typeof(ApiResourceInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> UpdateResource([FromBody] UpdateApiResourceRequest editResource,
@@ -90,6 +122,7 @@ public class ApiResourceController : BaseController
     /// <response code="403">Нет прав на совершение действия</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpDelete]
+    [Authorize("apiResource.write")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteResource([FromQuery] int resourceId, [FromServices] IUseCase<IDeleteApiResourceCommand> deleteResourceUseCase,
         CancellationToken cancellation)

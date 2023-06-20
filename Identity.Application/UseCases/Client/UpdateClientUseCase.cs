@@ -52,6 +52,11 @@ public class UpdateClientUseCase : IUseCase<IUpdateClientCommand, ClientInfo>
         allowedScopes.AddRange(arg.AllowedScopes.Except(allowedScopes.Select(s => s.Scope)).Select(x => new ClientScope {Scope = x}));
         clientDb.AllowedScopes = allowedScopes;
 
+        //update user claims
+        var userClaims = clientDb.Claims.Where(x => arg.UserClaims.Contains(x.Value)).ToList();
+        userClaims.AddRange(arg.UserClaims.Except(userClaims.Select(s => s.Value)).Select(x => new ClientClaim {Value = x}));
+        clientDb.Claims = userClaims;
+
         _mapper.Map(arg, clientDb);
 
         _dbContext.Update(clientDb);

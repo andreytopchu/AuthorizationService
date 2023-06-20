@@ -13,7 +13,8 @@ public class RoleProfile : Profile
         CreateMap<IAddRoleCommand, Role>(MemberList.Source)
             .ForSourceMember(x => x.PolicyIds, expression => expression.DoNotValidate());
 
-        CreateMap<IUpdateRoleCommand, Role>(MemberList.Source);
+        CreateMap<IUpdateRoleCommand, Role>(MemberList.Source)
+            .ForSourceMember(x => x.PolicyIds, expression => expression.DoNotValidate());
 
         CreateMap<Role, RoleInfo>();
 

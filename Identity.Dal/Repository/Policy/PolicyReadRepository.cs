@@ -5,7 +5,6 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Identity.Abstractions;
 using Identity.Application.Abstractions.Repositories.Policy;
-using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications;
 using Identity.Domain.Specifications.Policy;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +15,7 @@ public class PolicyReadRepository : GenericReadRepository<Domain.Entities.Policy
 {
     private readonly IMapper _mapper;
 
-    public PolicyReadRepository(IReadDbContext dbContext, IMapper mapper) : base(dbContext)
+    public PolicyReadRepository(IReadDbContext dbContext, IMapper mapper) : base(dbContext, mapper)
     {
         _mapper = mapper;
     }
@@ -26,18 +25,6 @@ public class PolicyReadRepository : GenericReadRepository<Domain.Entities.Policy
         var policy = await FirstOrDefaultAsync(new EntityByKeySpecification<Domain.Entities.Policy, Guid>(id), cancellationToken);
 
         return policy is not null;
-    }
-
-    public async Task<TInfo> GetPolicyByIdAsync<TInfo>(Guid id, CancellationToken cancellationToken)
-    {
-        var policyInfo = await QueryBy(new EntityByKeySpecification<Domain.Entities.Policy, Guid>(id))
-            .ProjectTo<TInfo>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (policyInfo == null)
-            throw new PolicyNotFoundException(id);
-
-        return policyInfo;
     }
 
     public async Task<TInfo[]> GetPolicies<TInfo>(Guid[] policyIds, CancellationToken cancellationToken)

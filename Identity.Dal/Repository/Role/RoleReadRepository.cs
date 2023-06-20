@@ -17,7 +17,7 @@ public class RoleReadRepository : GenericReadRepository<Domain.Entities.Role, Gu
     private readonly IMapper _mapper;
     protected override IQueryable<Domain.Entities.Role> BaseQuery => base.BaseQuery.Include(x => x.Policies);
 
-    public RoleReadRepository(IReadDbContext dbContext, IMapper mapper) : base(dbContext)
+    public RoleReadRepository(IReadDbContext dbContext, IMapper mapper) : base(dbContext, mapper)
     {
         _mapper = mapper;
     }

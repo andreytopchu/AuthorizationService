@@ -26,6 +26,6 @@ public class PolicyEntityTypeConfiguration : IEntityTypeConfiguration<Policy>
         builder.HasIndex(e => e.Name).HasDatabaseName($"IX_{nameof(Policy)}_{nameof(Policy.Name)}").IsUnique();
 
         builder.HasMany(e => e.Roles).WithMany(e => e.Policies);
-        builder.HasMany(e => e.Clients).WithOne(e => e.Policy).HasForeignKey(x=>x.PolicyId);
+        builder.HasMany(e => e.ApiResources).WithOne(e => e.Policy).HasForeignKey(x=>x.PolicyId);
     }
 }

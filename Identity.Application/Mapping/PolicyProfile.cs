@@ -12,17 +12,21 @@ public class PolicyProfile : Profile
     public PolicyProfile()
     {
         CreateMap<IAddPolicyCommand, Policy>(MemberList.Source)
-            .ForMember(x => x.Clients, expression => expression.MapFrom(x =>
-                x.ClientIds.Select(id => new ClientPolicy {ClientId = id, PolicyName = string.Concat(new[] {id, "_", x.Name})}).ToArray()));
+            .ForMember(x => x.ApiResources, expression => expression.MapFrom(x =>
+                x.ResourceNames.Select(resourceName => new ApiResourcePolicy
+                    {ResourceName = resourceName, PolicyName = string.Concat(new[] {resourceName, "_", x.Name})}).ToArray()))
+            .ForSourceMember(x => x.ResourceNames, expression => expression.DoNotValidate());
 
         CreateMap<IUpdatePolicyCommand, Policy>(MemberList.Source)
-            .ForMember(x => x.Clients, expression => expression.MapFrom(x =>
-                x.ClientIds.Select(id => new ClientPolicy {ClientId = id, PolicyName = string.Concat(new[] {id, "_", x.Name})}).ToArray()));
+            .ForMember(x => x.ApiResources, expression => expression.MapFrom(x =>
+                x.ResourceNames.Select(resourceName => new ApiResourcePolicy
+                    {ResourceName = resourceName, PolicyName = string.Concat(new[] {resourceName, "_", x.Name})}).ToArray()))
+            .ForSourceMember(x => x.ResourceNames, expression => expression.DoNotValidate());
 
         CreateMap<Policy, PolicyInfo>()
-            .ForMember(x => x.ClientPolicyInfos, expression => expression.MapFrom(x => x.Clients));
+            .ForMember(x => x.ApiResourcePolicyInfos, expression => expression.MapFrom(x => x.ApiResources));
 
-        CreateMap<ClientPolicy, ClientPolicyInfo>();
+        CreateMap<ApiResourcePolicy, ApiResourcePolicyInfo>();
 
         CreateMap<Policy, PolicyDto>();
     }

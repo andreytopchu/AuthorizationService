@@ -19,7 +19,7 @@ public class UserReadRepository : GenericReadRepository<Domain.Entities.User, Gu
 
     protected override IQueryable<Domain.Entities.User> BaseQuery => base.BaseQuery.Include(x => x.Role);
 
-    public UserReadRepository(IReadDbContext dbContext, IMapper mapper) : base(dbContext)
+    public UserReadRepository(IReadDbContext dbContext, IMapper mapper) : base(dbContext, mapper)
     {
         _mapper = mapper;
     }
@@ -39,7 +39,9 @@ public class UserReadRepository : GenericReadRepository<Domain.Entities.User, Gu
     public async Task<Domain.Entities.User> GetActiveUserByIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         var userInfo = await QueryBy(new ActiveUserByIdSpecification(userId))
-            .Include(x => x.Role).ThenInclude(r => r != null ? r.Policies : null)
+            .Include(x => x.Role)
+            .ThenInclude(r => r.Policies)
+            .ThenInclude(p => p.ApiResources)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (userInfo == null)

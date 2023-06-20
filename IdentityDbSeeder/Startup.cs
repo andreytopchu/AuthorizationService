@@ -30,7 +30,7 @@ public class Startup
         services.AddScoped<ConfigurationDbSeeder>();
         services.AddScoped<PersistedGrantDbSeeder>();
         services.AddScoped<Seeder.IdentityDbSeeder>();
-        services.AddScoped<SecurityTokenDbContext>();
+        services.AddScoped<SecurityTokenDbSeeder>();
 
         services.AddIdentityServicesForSeeder();
     }

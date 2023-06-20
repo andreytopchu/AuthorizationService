@@ -3,9 +3,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Identity.Application.Abstractions.Models.Command.User;
 using Identity.Application.Abstractions.Models.Query.User;
+using Identity.Application.Abstractions.Repositories.User;
 using Identity.Application.Abstractions.UseCases;
 using Identity.ExceptionFilter;
+using Identity.Models.Requests;
 using Identity.Models.Requests.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +16,47 @@ namespace Identity.Controllers.Admin;
 
 public class UserController : BaseController
 {
+    /// <summary>
+    /// Получение пользователя по id
+    /// </summary>
+    /// <param name="id">Id пользователя</param>
+    /// <param name="readRepository">Репозиторий пользователей</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Информация о пользователе</returns>
+    /// <response code="200">Информация о пользователе успешно возвращена</response>
+    /// <response code="404">Пользователь не найден</response>
+    [HttpGet]
+    [Authorize("user.read")]
+    [ProducesResponseType(typeof(UserInfo), StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetById([FromQuery] Guid id, [FromServices] IUserReadRepository readRepository,
+        CancellationToken cancellationToken)
+    {
+        if (readRepository == null) throw new ArgumentNullException(nameof(readRepository));
+
+        var result = await readRepository.GetByIdAsync<UserInfo>(id, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Получение пользователей
+    /// </summary>
+    /// <param name="request">Фильтры для пагинации</param>
+    /// <param name="readRepository">Репозиторий пользователей</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Список пользователей</returns>
+    /// <response code="200">Информация о пользователях успешно возвращена</response>
+    [HttpGet]
+    [Authorize("user.read")]
+    [ProducesResponseType(typeof(UserInfo[]), StatusCodes.Status200OK)]
+    public async Task<ActionResult> Get([FromQuery] PaginationFilterRequest request, [FromServices] IUserReadRepository readRepository,
+        CancellationToken cancellationToken)
+    {
+        if (readRepository == null) throw new ArgumentNullException(nameof(readRepository));
+
+        var result = await readRepository.GetWithPaginationAsync<UserInfo>(request, cancellationToken);
+        return Ok(result);
+    }
+
     /// <summary>
     /// Создание пользователя
     /// </summary>
@@ -27,6 +71,7 @@ public class UserController : BaseController
     /// <response code="409">Конфликт</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpPost]
+    [Authorize("user.write")]
     [ProducesResponseType(typeof(UserInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<UserInfo>> AddUser([FromBody] AddUserRequest newUser,
@@ -53,6 +98,7 @@ public class UserController : BaseController
     /// <response code="409">Конфликт</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpPut]
+    [Authorize("user.write")]
     [ProducesResponseType(typeof(UserInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest editUser,
@@ -78,6 +124,7 @@ public class UserController : BaseController
     /// <response code="409">Конфликт</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpPut]
+    [Authorize("user.write")]
     [ProducesResponseType(typeof(UserInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
@@ -106,6 +153,7 @@ public class UserController : BaseController
     /// <response code="403">Нет прав на совершение действия</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpDelete]
+    [Authorize("user.write")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteUser([FromQuery] Guid id, [FromServices] IUseCase<IDeleteUserCommand> deleteUserUseCase,
         CancellationToken cancellation)

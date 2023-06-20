@@ -11,7 +11,6 @@ public class IdentityDbContext : BaseDbContext<IdentityDbContext>
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Policy> Policies => Set<Policy>();
-    public DbSet<ClientPolicy> ClientPolicies => Set<ClientPolicy>();
 
     public IdentityDbContext(DbContextOptions<IdentityDbContext> options)
         : base(options)
@@ -26,7 +25,7 @@ public class IdentityDbContext : BaseDbContext<IdentityDbContext>
         modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new RoleEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new PolicyEntityTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new ClientPolicyEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ApiResourcePolicyEntityTypeConfiguration());
 
         modelBuilder.OutboxModelCreating();
         base.OnModelCreating(modelBuilder);

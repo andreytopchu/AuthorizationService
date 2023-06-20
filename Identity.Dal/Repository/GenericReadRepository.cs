@@ -4,7 +4,10 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Dex.Entity;
+using Dex.Pagination;
 using Dex.Specifications;
 using Identity.Abstractions;
 using Identity.Abstractions.Repository;
@@ -14,14 +17,35 @@ using Microsoft.EntityFrameworkCore;
 namespace Identity.Dal.Repository;
 
 public class GenericReadRepository<T, TK> : IReadRepository<T, TK>
-    where T : class, IEntity<TK> where TK : IComparable
+    where T : class, IEntity<TK>, ICreatedUtc where TK : IComparable
 {
+    private readonly IMapper _mapper;
     private IReadDbContext DbContext { get; }
     protected virtual IQueryable<T> BaseQuery => DbContext.Get<T>();
 
-    public GenericReadRepository(IReadDbContext dbContext)
+    public GenericReadRepository(IReadDbContext dbContext, IMapper mapper)
     {
-        DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _mapper = mapper;
+        DbContext = dbContext;
+    }
+
+    public async Task<TInfo[]> GetWithPaginationAsync<TInfo>(IPaginationFilter paginationFilter, CancellationToken cancellationToken)
+    {
+        if (paginationFilter == null) throw new ArgumentNullException(nameof(paginationFilter));
+
+        return await BaseQuery.OrderByDescending(x => x.CreatedUtc)
+            .FilterPage(paginationFilter.Page, paginationFilter.PageSize)
+            .ProjectTo<TInfo>(_mapper.ConfigurationProvider)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<TInfo> GetByIdAsync<TInfo>(TK id, CancellationToken cancellation)
+    {
+        var result = await BaseQuery.FirstOrDefaultAsync(x => Equals(x.Id, id), cancellation);
+        if (result == null)
+            throw new EntityNotFoundException(id.ToString()!, typeof(T).Name);
+
+        return _mapper.Map<TInfo>(result);
     }
 
     public async Task<T> GetByIdAsync(TK id, CancellationToken cancellation)

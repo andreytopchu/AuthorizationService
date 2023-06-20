@@ -5,21 +5,21 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Identity.Dal.EntityConfigurations;
 
-public class ClientPolicyEntityTypeConfiguration : IEntityTypeConfiguration<ClientPolicy>
+public class ApiResourcePolicyEntityTypeConfiguration : IEntityTypeConfiguration<ApiResourcePolicy>
 {
-    public void Configure(EntityTypeBuilder<ClientPolicy> builder)
+    public void Configure(EntityTypeBuilder<ApiResourcePolicy> builder)
     {
         if (builder == null) throw new ArgumentNullException(nameof(builder));
 
-        builder.ToTable(nameof(ClientPolicy));
+        builder.ToTable(nameof(ApiResourcePolicy));
 
         builder.Property(e => e.Id);
         builder.Property(e => e.PolicyName);
-        builder.Property(e => e.ClientId);
+        builder.Property(e => e.ResourceName);
         builder.Property(e => e.PolicyId);
 
         builder.HasKey(e => e.Id);
 
-        builder.HasOne(e => e.Policy).WithMany(e => e.Clients).HasForeignKey(x=>x.PolicyId);
+        builder.HasOne(e => e.Policy).WithMany(e => e.ApiResources).HasForeignKey(x=>x.PolicyId);
     }
 }

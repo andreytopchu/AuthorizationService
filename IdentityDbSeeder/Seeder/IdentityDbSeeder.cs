@@ -52,9 +52,9 @@ public class IdentityDbSeeder : BaseEfSeeder<IdentityDbContext>, IDbSeeder
             {
                 Id = PolicyConstantId.FullAccessPolicyId,
                 Name = "fullAccess",
-                Clients = new ClientPolicy[]
+                ApiResources = new ApiResourcePolicy[]
                 {
-                    new() {ClientId = ClientConstantId.IdentityClientId, PolicyId = PolicyConstantId.FullAccessPolicyId, PolicyName = "fullAccess"}
+                    new() {ResourceName = ClientConstantId.IdentityClientId, PolicyId = PolicyConstantId.FullAccessPolicyId, PolicyName = "fullAccess"}
                 }
             });
             await dbContext.SaveChangesAsync(CancellationToken.None);
@@ -100,9 +100,9 @@ public class IdentityDbSeeder : BaseEfSeeder<IdentityDbContext>, IDbSeeder
             {
                 Id = PolicyConstantId.FullAccessPolicyId,
                 Name = "fullAccess",
-                Clients = new ClientPolicy[]
+                ApiResources = new ApiResourcePolicy[]
                 {
-                    new() {ClientId = ClientConstantId.IdentityClientId, PolicyId = PolicyConstantId.FullAccessPolicyId, PolicyName = "fullAccess"}
+                    new() {ResourceName = ClientConstantId.IdentityClientId, PolicyId = PolicyConstantId.FullAccessPolicyId, PolicyName = "fullAccess"}
                 }
             });
             await dbContext.SaveChangesAsync(CancellationToken.None);

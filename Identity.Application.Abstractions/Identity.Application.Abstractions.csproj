@@ -12,10 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\Admin\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Identity.Abstractions\Identity.Abstractions.csproj" />
       <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
     </ItemGroup>

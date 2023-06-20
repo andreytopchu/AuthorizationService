@@ -6,5 +6,5 @@ public interface IUpdatePolicyCommand : IUseCaseArg
 {
     public Guid Id { get; init; }
     public string Name { get; init; }
-    public string[] ClientIds { get; init; }
+    public string[] ResourceNames { get; init; }
 }

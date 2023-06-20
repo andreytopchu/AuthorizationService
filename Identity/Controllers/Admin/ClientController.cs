@@ -3,9 +3,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Identity.Application.Abstractions.Models.Command.Client;
 using Identity.Application.Abstractions.Models.Query.Client;
+using Identity.Application.Abstractions.Repositories.Client;
 using Identity.Application.Abstractions.UseCases;
 using Identity.ExceptionFilter;
+using Identity.Models.Requests;
 using Identity.Models.Requests.Client;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +16,47 @@ namespace Identity.Controllers.Admin;
 
 public class ClientController : BaseController
 {
+    /// <summary>
+    /// Получение клиента по id
+    /// </summary>
+    /// <param name="clientId">Id клиента</param>
+    /// <param name="readRepository">Репозиторий клиентов</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Информация о клиенте</returns>
+    /// <response code="200">Информация о клиенте успешно возвращена</response>
+    /// <response code="404">Клиент не найден</response>
+    [HttpGet]
+    [Authorize("client.read")]
+    [ProducesResponseType(typeof(ClientInfo), StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetById([FromQuery] string clientId, [FromServices] IClientReadRepository readRepository,
+        CancellationToken cancellationToken)
+    {
+        if (readRepository == null) throw new ArgumentNullException(nameof(readRepository));
+
+        var result = await readRepository.GetById(clientId, cancellationToken);
+        return result is not null ? Ok(result) : NotFound();
+    }
+
+    /// <summary>
+    /// Получение клиентов
+    /// </summary>
+    /// <param name="request">Фильтры для пагинации</param>
+    /// <param name="readRepository">Репозиторий клиентов</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Список клиентов</returns>
+    /// <response code="200">Информация о клиентах успешно возвращена</response>
+    [HttpGet]
+    [Authorize("client.read")]
+    [ProducesResponseType(typeof(ClientInfo[]), StatusCodes.Status200OK)]
+    public async Task<ActionResult> Get([FromQuery] PaginationFilterRequest request, [FromServices] IClientReadRepository readRepository,
+        CancellationToken cancellationToken)
+    {
+        if (readRepository == null) throw new ArgumentNullException(nameof(readRepository));
+
+        var result = await readRepository.Get(request, cancellationToken);
+        return Ok(result);
+    }
+
     /// <summary>
     /// Создание клиента
     /// </summary>
@@ -27,6 +71,7 @@ public class ClientController : BaseController
     /// <response code="409">Конфликт</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpPost]
+    [Authorize("client.write")]
     [ProducesResponseType(typeof(ClientInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ClientInfo>> AddClient([FromBody] AddClientRequest newClient,
@@ -53,6 +98,7 @@ public class ClientController : BaseController
     /// <response code="409">Конфликт</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpPut]
+    [Authorize("client.write")]
     [ProducesResponseType(typeof(ClientInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> UpdateClient([FromBody] UpdateClientRequest editClient,
@@ -76,6 +122,7 @@ public class ClientController : BaseController
     /// <response code="403">Нет прав на совершение действия</response>
     /// <response code="500">Ошибка сервера</response>
     [HttpDelete]
+    [Authorize("client.write")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteClient([FromQuery] string clientId, [FromServices] IUseCase<IDeleteClientCommand> deleteClientUseCase,
         CancellationToken cancellation)

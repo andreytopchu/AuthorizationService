@@ -86,7 +86,14 @@ internal class UserStoreService : IUserStoreService
                 {
                     if (user.Role is not null && !IEnumerableExtensions.IsNullOrEmpty(user.Role.Policies))
                     {
-                        yield return new SimpleClaim {Type = claim.Type, Value = string.Join(',', user.Role.Policies.Select(x => x.Name).ToArray())};
+                        var policies = new List<string>();
+
+                        foreach (var policy in user.Role.Policies)
+                        {
+                            policies.AddRange(policy.ApiResources.Select(x=>x.PolicyName));
+                        }
+
+                        yield return new SimpleClaim {Type = claim.Type, Value = string.Join(',', policies)};
                     }
 
                     break;

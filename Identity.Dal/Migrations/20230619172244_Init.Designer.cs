@@ -12,15 +12,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Identity.Dal.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20230611120631_Init")]
+    [Migration("20230619172244_Init")]
     partial class Init
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "6.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "uuid-ossp");
@@ -92,15 +91,11 @@ namespace Identity.Dal.Migrations
                     b.ToTable("outbox", "cap");
                 });
 
-            modelBuilder.Entity("Identity.Domain.Entities.ClientPolicy", b =>
+            modelBuilder.Entity("Identity.Domain.Entities.ApiResourcePolicy", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<Guid>("PolicyId")
                         .HasColumnType("uuid");
@@ -109,11 +104,15 @@ namespace Identity.Dal.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ResourceName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PolicyId");
 
-                    b.ToTable("ClientPolicy", (string)null);
+                    b.ToTable("ApiResourcePolicy", (string)null);
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Policy", b =>
@@ -134,6 +133,11 @@ namespace Identity.Dal.Migrations
 
                     b.Property<DateTime>("UpdatedUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -175,6 +179,11 @@ namespace Identity.Dal.Migrations
                     b.Property<DateTime>("UpdatedUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedUtc")
@@ -206,6 +215,7 @@ namespace Identity.Dal.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("EmailConfirmed")
@@ -225,7 +235,6 @@ namespace Identity.Dal.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("RoleId")
@@ -233,6 +242,11 @@ namespace Identity.Dal.Migrations
 
                     b.Property<DateTime>("UpdatedUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid");
 
                     b.HasKey("Id");
 
@@ -273,10 +287,10 @@ namespace Identity.Dal.Migrations
                     b.ToTable("PolicyRole");
                 });
 
-            modelBuilder.Entity("Identity.Domain.Entities.ClientPolicy", b =>
+            modelBuilder.Entity("Identity.Domain.Entities.ApiResourcePolicy", b =>
                 {
                     b.HasOne("Identity.Domain.Entities.Policy", "Policy")
-                        .WithMany("Clients")
+                        .WithMany("ApiResources")
                         .HasForeignKey("PolicyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -312,7 +326,7 @@ namespace Identity.Dal.Migrations
 
             modelBuilder.Entity("Identity.Domain.Entities.Policy", b =>
                 {
-                    b.Navigation("Clients");
+                    b.Navigation("ApiResources");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Role", b =>

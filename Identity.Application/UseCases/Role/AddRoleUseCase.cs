@@ -8,6 +8,7 @@ using Identity.Application.Abstractions.Repositories.Role;
 using Identity.Application.Abstractions.UseCases;
 using Identity.Application.Extensions;
 using Identity.Domain.Exceptions;
+using Identity.Domain.Specifications.Policy;
 
 namespace Identity.Application.UseCases.Role;
 
@@ -30,7 +31,7 @@ internal class AddRoleUseCase : IUseCase<IAddRoleCommand, RoleInfo>
     {
         if (arg == null) throw new ArgumentNullException(nameof(arg));
 
-        var policies = await _policyReadRepository.GetPolicies<Domain.Entities.Policy>(arg.PolicyIds, cancellationToken);
+        var policies = await _policyReadRepository.FilterAsync(new PolicyByIdsSpecification(arg.PolicyIds), cancellationToken);
         if (policies.Length != arg.PolicyIds.Length)
         {
             throw new ThereAreUnacceptablePolicies(arg.PolicyIds);

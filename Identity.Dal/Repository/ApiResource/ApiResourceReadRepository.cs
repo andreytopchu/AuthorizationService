@@ -3,6 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Dex.Pagination;
+using Identity.Abstractions;
 using Identity.Application.Abstractions.Models.Query.ApiResource;
 using Identity.Application.Abstractions.Repositories.ApiResource;
 using Identity.Domain.Specifications.ApiResource;
@@ -27,5 +29,14 @@ public class ApiResourceReadRepository : IApiResourceReadRepository
             .Where(new ApiResourceByIdSpecification(id))
             .ProjectTo<ApiResourceInfo>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<ApiResourceInfo[]> Get(IPaginationFilter filter, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ApiResources
+            .OrderByDescending(x=>x.Created)
+            .FilterPage(filter.Page, filter.PageSize)
+            .ProjectTo<ApiResourceInfo>(_mapper.ConfigurationProvider)
+            .ToArrayAsync(cancellationToken);
     }
 }

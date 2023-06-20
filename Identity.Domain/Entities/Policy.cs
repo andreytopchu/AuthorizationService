@@ -15,5 +15,5 @@ public class Policy : ICreatedUtc, IUpdatedUtc, IDeletable, IEntity<Guid>
     public string Name { get; set; } = null!;
 
     public ICollection<Role> Roles { get; set; } = new List<Role>();
-    public ICollection<ClientPolicy> Clients { get; set; } = new List<ClientPolicy>();
+    public ICollection<ApiResourcePolicy> ApiResources { get; set; } = new List<ApiResourcePolicy>();
 }

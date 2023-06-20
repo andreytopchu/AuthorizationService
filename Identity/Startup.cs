@@ -37,6 +37,7 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using IConfigurationProvider = AutoMapper.IConfigurationProvider;
 
 namespace Identity;
 
@@ -89,8 +90,8 @@ public class Startup
         app.UseAuthorization();
 
         // check automapper config
-        // var provider = app.ApplicationServices.GetRequiredService<IConfigurationProvider>();
-        // provider.AssertConfigurationIsValid();
+        var provider = app.ApplicationServices.GetRequiredService<IConfigurationProvider>();
+        provider.AssertConfigurationIsValid();
 
         app.UseEndpoints(builder => { builder.MapDefaultControllerRoute(); });
 
@@ -284,7 +285,7 @@ public class Startup
         {
             const string claimType = "policy";
 
-            foreach (var apiPolicy in AuthorizationSettings.ApiPolicies!)
+            foreach (var apiPolicy in AuthorizationSettings.ApiPolicies)
             {
                 // fullAccess должен игнорироваться
                 if (apiPolicy == "fullAccess")
@@ -295,15 +296,16 @@ public class Startup
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(claimType);
 
+                    var fullPolicyName = string.Join('_', AuthorizationSettings.ApiPolicies, apiPolicy);
                     //write включает read
-                    if (apiPolicy.EndsWith(".read", StringComparison.InvariantCulture))
+                    if (fullPolicyName.EndsWith(".read", StringComparison.InvariantCulture))
                     {
-                        var basePolicy = apiPolicy.Replace(".read", string.Empty, StringComparison.InvariantCulture);
+                        var basePolicy = fullPolicyName.Replace(".read", string.Empty, StringComparison.InvariantCulture);
                         policy.RequireAssertion(context =>
                         {
                             var policyValue = context.User.Claims.FirstOrDefault(x => x.Type == claimType)?.Value;
                             return policyValue != null &&
-                                   (policyValue.Contains(apiPolicy, StringComparison.InvariantCulture) ||
+                                   (policyValue.Contains(fullPolicyName, StringComparison.InvariantCulture) ||
                                     policyValue.Contains($"{basePolicy}.write",
                                         StringComparison.InvariantCulture) ||
                                     policyValue.Contains("fullAccess", StringComparison.InvariantCulture));
@@ -315,7 +317,7 @@ public class Startup
                         {
                             var policyValue = context.User.Claims.FirstOrDefault(x => x.Type == claimType)?.Value;
                             return policyValue != null &&
-                                   (policyValue.Contains(apiPolicy, StringComparison.InvariantCulture) ||
+                                   (policyValue.Contains(fullPolicyName, StringComparison.InvariantCulture) ||
                                     policyValue.Contains("fullAccess", StringComparison.InvariantCulture));
                         });
                     }

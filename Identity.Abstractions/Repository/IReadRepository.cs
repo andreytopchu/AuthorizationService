@@ -8,6 +8,8 @@ public interface IReadRepository<T, in TK>
     where TK : IComparable
 {
     Task<T> GetByIdAsync(TK id, CancellationToken cancellation);
+    Task<TInfo> GetByIdAsync<TInfo>(TK id, CancellationToken cancellation);
+    Task<TInfo[]> GetWithPaginationAsync<TInfo>(IPaginationFilter paginationFilter, CancellationToken cancellationToken);
     Task<T> GetBySpecAsync(Specification<T> specification, CancellationToken cancellation);
     Task<T[]> FilterAsync(Specification<T> specification, CancellationToken cancellation);
     Task<bool> AnyAsync(Specification<T> specification, CancellationToken cancellation);
