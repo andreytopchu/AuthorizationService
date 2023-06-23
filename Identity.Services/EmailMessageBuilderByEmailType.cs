@@ -14,17 +14,18 @@ public class EmailMessageBuilderByEmailType : IEmailMessageBuilderByEmailType
 {
     private const string TemplateFolder = "Templates";
     private readonly IOptions<TokenOptions> _tokenOptions;
+    private readonly IOptions<EmailOptions> _emailOptions;
     private readonly ITokenProvider _tokenProvider;
 
-    public EmailMessageBuilderByEmailType(IOptions<TokenOptions> tokenOptions, ITokenProvider tokenProvider)
+    public EmailMessageBuilderByEmailType(IOptions<TokenOptions> tokenOptions, IOptions<EmailOptions> emailOptions, ITokenProvider tokenProvider)
     {
         _tokenOptions = tokenOptions ?? throw new ArgumentNullException(nameof(tokenOptions));
+        _emailOptions = emailOptions ?? throw new ArgumentNullException(nameof(emailOptions));
         _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
     }
 
-    public async Task<(string subject, string body)> Build(Uri baseUri, EmailType emailType, User user, CancellationToken cancellation)
+    public async Task<(string subject, string body)> Build(EmailType emailType, User user, CancellationToken cancellation)
     {
-        if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
         if (user == null) throw new ArgumentNullException(nameof(user));
 
         TimeSpan timeout;
@@ -35,11 +36,11 @@ public class EmailMessageBuilderByEmailType : IEmailMessageBuilderByEmailType
             case EmailType.RegisterUser:
                 timeout = _tokenOptions.Value.InviteTokenLifeDays;
                 token = await CreateTokenAsUrlAsync<RegisterUserToken>(user, timeout, cancellation);
-                return await CreateRegisterMessageBody(baseUri, user, token, cancellation);
+                return await CreateRegisterMessageBody(new Uri(_emailOptions.Value.AppUrlForEmailLinks!), user, token, cancellation);
             case EmailType.RecoveryPassword:
                 timeout = _tokenOptions.Value.ForgotTokenLifeDays;
                 token = await CreateTokenAsUrlAsync<RecoveryUserPasswordToken>(user, timeout, cancellation);
-                return await CreateRecoveryPasswordMessageBody(baseUri, user, token, cancellation);
+                return await CreateRecoveryPasswordMessageBody(new Uri(_emailOptions.Value.AppUrlForEmailLinks!), user, token, cancellation);
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(emailType), emailType, null);

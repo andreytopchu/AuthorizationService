@@ -24,21 +24,17 @@ internal class ResetPasswordUserUseCase : IUseCase<IResetPasswordUserCommand>
 
         if (dbUser == null) throw new EntityNotFoundException<UserInfo>(arg.Email);
 
-        if (arg.IdentityUri != null)
+
+        await _emailNotificationService.Process(new SendToUserRecoveryEmailRequest
         {
-            await _emailNotificationService.Process(new SendToUserRecoveryEmailRequest
-                {
-                    User = dbUser,
-                    IdentityUri = arg.IdentityUri,
-                    EmailType = EmailType.RecoveryPassword
-                }, cancellationToken);
-        }
+            User = dbUser,
+            EmailType = EmailType.RecoveryPassword
+        }, cancellationToken);
     }
 
     private class SendToUserRecoveryEmailRequest : ISendToUserRecoveryEmailCommand
     {
         public Domain.Entities.User User { get; init; } = null!;
-        public IIdentityUriCommand? IdentityUri { get; set; }
         public EmailType EmailType { get; init; }
     }
 }

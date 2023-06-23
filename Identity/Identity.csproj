@@ -24,7 +24,8 @@
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
         <PackageReference Include="Common.Logging.Serilog" Version="4.4.0" />
         <PackageReference Include="Dex.MassTransit.Rabbit" Version="2.1.28" />
-        <PackageReference Include="Dex.SecurityToken.DistributedStorage" Version="2.2.2" />
+        <PackageReference Include="Dex.SecurityToken.RedisStorage" Version="1.0.5" />
+        <PackageReference Include="Dex.SecurityTokenProvider" Version="1.0.5" />
         <PackageReference Include="IdentityModel.AspNetCore.AccessTokenValidation" Version="1.0.0-preview.3" />
         <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="6.1.0" />
         <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />

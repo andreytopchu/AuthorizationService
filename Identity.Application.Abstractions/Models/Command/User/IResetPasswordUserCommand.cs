@@ -11,6 +11,4 @@ public interface IResetPasswordUserCommand : IUseCaseArg
     /// Адрес эл.почты, на который высылается письмо с восстановлением пароля
     /// </summary>
     string Email { get; }
-
-    IIdentityUriCommand? IdentityUri { get; set; }
 }

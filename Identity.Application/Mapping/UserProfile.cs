@@ -1,4 +1,5 @@
 using AutoMapper;
+using Identity.Application.Abstractions.Models.Command.User;
 using Identity.Application.Abstractions.Models.Query.User;
 using Identity.Domain.Entities;
 
@@ -8,6 +9,10 @@ public class UserProfile : Profile
 {
     public UserProfile()
     {
+        CreateMap<IAddUserCommand, User>(MemberList.Source);
+
+        CreateMap<IUpdateUserCommand, User>(MemberList.Source);
+
         CreateMap<User, Abstractions.Models.Authorization.User>()
             .ForMember(x => x.Subject, expression => expression.MapFrom(x => x.Id.ToString()))
             .ForMember(x => x.Name, expression => expression.MapFrom(x => x.GetFullName()))

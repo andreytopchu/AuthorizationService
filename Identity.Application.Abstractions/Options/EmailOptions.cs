@@ -10,5 +10,6 @@
         public string? From { get; set; }
         public int ConnectTimeout { get; set; } = 2000;
         public int SendTimeout { get; set; } = 10000;
+        public string? AppUrlForEmailLinks { get; set; }
     }
 }

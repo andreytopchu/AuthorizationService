@@ -11,6 +11,7 @@ using Identity.Application.Abstractions.UseCases;
 using Identity.Application.Extensions;
 using Identity.Application.IntegrationEvents;
 using Identity.Domain.Exceptions;
+using Identity.Domain.Specifications.Policy;
 using Identity.Domain.Specifications.Role;
 
 namespace Identity.Application.UseCases.Role;
@@ -19,16 +20,16 @@ internal class UpdateRoleUseCase : IUseCase<IUpdateRoleCommand, RoleInfo>
 {
     private readonly IRoleWriteRepository _roleWriteRepository;
     private readonly IUserReadRepository _userReadRepository;
-    private readonly IPolicyReadRepository _policyReadRepository;
+    private readonly IPolicyWriteRepository _policyWriteRepository;
     private readonly IOutboxService<IUnitOfWork> _outboxService;
     private readonly IMapper _mapper;
 
-    public UpdateRoleUseCase(IRoleWriteRepository roleWriteRepository, IUserReadRepository userReadRepository, IPolicyReadRepository policyReadRepository,
+    public UpdateRoleUseCase(IRoleWriteRepository roleWriteRepository, IUserReadRepository userReadRepository, IPolicyWriteRepository policyWriteRepository,
         IOutboxService<IUnitOfWork> outboxService, IMapper mapper)
     {
         _roleWriteRepository = roleWriteRepository;
         _userReadRepository = userReadRepository;
-        _policyReadRepository = policyReadRepository;
+        _policyWriteRepository = policyWriteRepository;
         _outboxService = outboxService;
         _mapper = mapper;
     }
@@ -52,7 +53,7 @@ internal class UpdateRoleUseCase : IUseCase<IUpdateRoleCommand, RoleInfo>
 
             dbRole.Policies.ForEach(x => x.Name.ThrowIfPolicyIsFullAccess());
 
-            var policies = await _policyReadRepository.GetPolicies<Domain.Entities.Policy>(arg.PolicyIds, cancellationToken);
+            var policies = await _policyWriteRepository.Read.FilterAsync(new PolicyByIdsSpecification(arg.PolicyIds), cancellationToken);
             if (policies.Length != arg.PolicyIds.Length)
             {
                 throw new ThereAreUnacceptablePolicies(arg.PolicyIds);
@@ -62,7 +63,7 @@ internal class UpdateRoleUseCase : IUseCase<IUpdateRoleCommand, RoleInfo>
 
             _mapper.Map(arg, dbRole);
 
-            dbRole.Policies = policies;
+            dbRole.Policies = policies.ToList();
 
             await outboxContext.EnqueueAsync(new UserTokenInvalidationIntegrationEvent
             {

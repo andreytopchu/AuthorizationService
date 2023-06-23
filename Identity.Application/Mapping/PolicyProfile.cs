@@ -14,13 +14,13 @@ public class PolicyProfile : Profile
         CreateMap<IAddPolicyCommand, Policy>(MemberList.Source)
             .ForMember(x => x.ApiResources, expression => expression.MapFrom(x =>
                 x.ResourceNames.Select(resourceName => new ApiResourcePolicy
-                    {ResourceName = resourceName, PolicyName = string.Concat(new[] {resourceName, "_", x.Name})}).ToArray()))
+                    {ResourceName = resourceName, PolicyName = string.Concat(new[] {resourceName, "_", x.Name})}).ToList()))
             .ForSourceMember(x => x.ResourceNames, expression => expression.DoNotValidate());
 
         CreateMap<IUpdatePolicyCommand, Policy>(MemberList.Source)
             .ForMember(x => x.ApiResources, expression => expression.MapFrom(x =>
                 x.ResourceNames.Select(resourceName => new ApiResourcePolicy
-                    {ResourceName = resourceName, PolicyName = string.Concat(new[] {resourceName, "_", x.Name})}).ToArray()))
+                    {ResourceName = resourceName, PolicyName = string.Concat(new[] {resourceName, "_", x.Name})}).ToList()))
             .ForSourceMember(x => x.ResourceNames, expression => expression.DoNotValidate());
 
         CreateMap<Policy, PolicyInfo>()

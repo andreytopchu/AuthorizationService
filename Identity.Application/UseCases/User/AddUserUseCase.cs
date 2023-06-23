@@ -42,15 +42,12 @@ public class AddUserUseCase : IUseCase<IAddUserCommand, UserInfo>
         await _userRepository.AddAsync(userDb, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        if (arg.IdentityUri != null)
+        await _emailNotificationService.Process(new SendToUserActivationEmailRequest
         {
-            await _emailNotificationService.Process(new SendToUserActivationEmailRequest
-            {
-                User = userDb,
-                IdentityUri = arg.IdentityUri,
-                EmailType = EmailType.RegisterUser
-            }, cancellationToken);
-        }
+            User = userDb,
+            EmailType = EmailType.RegisterUser
+        }, cancellationToken);
+
 
         return await GetUserById(userDb.Id, cancellationToken);
     }
@@ -70,8 +67,6 @@ public class AddUserUseCase : IUseCase<IAddUserCommand, UserInfo>
     private class SendToUserActivationEmailRequest : ISendToUserActivationEmailCommand
     {
         public Domain.Entities.User User { get; init; } = null!;
-        public IIdentityUriCommand? IdentityUri { get; set; }
-
         public EmailType EmailType { get; init; }
     }
 }

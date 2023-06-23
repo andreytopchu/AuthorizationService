@@ -53,7 +53,7 @@ public static class MicrosoftDependencyInjectionExtensions
         services.AddScoped<IUseCase<ISendToUserActivationEmailCommand>, SendToUserActivationEmailUseCase>();
         services.AddScoped<IUseCase<ISendToUserRecoveryEmailCommand>, SendToUserRecoveryPasswordEmailUseCase>();
         services.AddScoped<IUseCase<IUpdateUserInvitationCommand, UserInfo>, UpdateUserInvitationUseCase>();
-        services.AddScoped<IUseCase<IAcceptUserCommand>, UserRestorePasswordUseCase>();
+        services.AddScoped<IUseCase<IUserRestorePasswordCommand>, UserRestorePasswordUseCase>();
 
         // outbox
         services.AddScoped<IOutboxMessageHandler<UserTokenInvalidationIntegrationEvent>, InvalidateUserTokenHandler>();

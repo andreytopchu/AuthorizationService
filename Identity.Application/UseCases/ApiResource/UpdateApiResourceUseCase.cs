@@ -6,6 +6,7 @@ using Identity.Application.Abstractions.UseCases;
 using Identity.Dal;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications.ApiResource;
+using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,16 +27,20 @@ public class UpdateApiResourceUseCase : IUseCase<IUpdateApiResourceCommand, ApiR
     {
         if (arg == null) throw new ArgumentNullException(nameof(arg));
 
-        var apiResource = await _dbContext.ApiResources.Where(new ApiResourceByIdSpecification(arg.Id)).FirstOrDefaultAsync(cancellationToken);
+        var apiResource = await _dbContext.ApiResources.Where(new ApiResourceByNameSpecification(arg.Name))
+            .Include(x => x.Scopes)
+            .Include(x => x.UserClaims)
+            .Include(x => x.Secrets)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (apiResource is null)
         {
-            throw new ApiResourceNotFoundException(arg.Id);
+            throw new ApiResourceNotFoundException(arg.Name);
         }
 
         //update secrets
         var apiResourceSecrets = apiResource.Secrets.Where(x => arg.ApiSecrets.Contains(x.Value)).ToList();
-        apiResourceSecrets.AddRange(arg.ApiSecrets.Except(apiResourceSecrets.Select(rs => rs.Value)).Select(x => new ApiResourceSecret {Value = x}));
+        apiResourceSecrets.AddRange(arg.ApiSecrets.Except(apiResourceSecrets.Select(rs => rs.Value)).Select(x => new ApiResourceSecret {Value = x.ToSha256()}));
         apiResource.Secrets = apiResourceSecrets;
 
         //update grant types
@@ -53,12 +58,12 @@ public class UpdateApiResourceUseCase : IUseCase<IUpdateApiResourceCommand, ApiR
         _dbContext.Update(apiResource);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return await GetApiResourceById(apiResource.Id, cancellationToken);
+        return await GetApiResourceById(apiResource.Name, cancellationToken);
     }
 
-    private async Task<ApiResourceInfo> GetApiResourceById(int id, CancellationToken cancellationToken)
+    private async Task<ApiResourceInfo> GetApiResourceById(string name, CancellationToken cancellationToken)
     {
-        return await _dbContext.ApiResources.Where(new ApiResourceByIdSpecification(id))
+        return await _dbContext.ApiResources.Where(new ApiResourceByNameSpecification(name))
             .ProjectTo<ApiResourceInfo>(_mapper.ConfigurationProvider)
             .FirstAsync(cancellationToken);
     }

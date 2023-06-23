@@ -19,7 +19,7 @@ public class ApiResourceController : BaseController
     /// <summary>
     /// Получение API ресурса по id
     /// </summary>
-    /// <param name="id">Id API ресурса</param>
+    /// <param name="apiResourceName">Имя API ресурса</param>
     /// <param name="readRepository">Репозиторий API ресурсов</param>
     /// <param name="cancellationToken"></param>
     /// <returns>API ресурс</returns>
@@ -28,12 +28,12 @@ public class ApiResourceController : BaseController
     [HttpGet]
     [Authorize("apiResource.read")]
     [ProducesResponseType(typeof(ApiResourceInfo), StatusCodes.Status200OK)]
-    public async Task<ActionResult> GetById([FromQuery] int id, [FromServices] IApiResourceReadRepository readRepository,
+    public async Task<ActionResult> GetByName([FromQuery] string apiResourceName, [FromServices] IApiResourceReadRepository readRepository,
         CancellationToken cancellationToken)
     {
         if (readRepository == null) throw new ArgumentNullException(nameof(readRepository));
 
-        var result = await readRepository.GetById(id, cancellationToken);
+        var result = await readRepository.GetByResourceName(apiResourceName, cancellationToken);
         return result is not null ? Ok(result) : NotFound();
     }
 
@@ -112,7 +112,7 @@ public class ApiResourceController : BaseController
     /// <summary>
     /// Удаление ресурсов
     /// </summary>
-    /// <param name="resourceId">Id ресурсов</param>
+    /// <param name="resourceName">Id ресурсов</param>
     /// <param name="deleteResourceUseCase">UseCase удаления ресурсов</param>
     /// <param name="cancellation"></param>
     /// <returns>Статус-код</returns>
@@ -124,14 +124,14 @@ public class ApiResourceController : BaseController
     [HttpDelete]
     [Authorize("apiResource.write")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> DeleteResource([FromQuery] int resourceId, [FromServices] IUseCase<IDeleteApiResourceCommand> deleteResourceUseCase,
+    public async Task<IActionResult> DeleteResource([FromQuery] string resourceName, [FromServices] IUseCase<IDeleteApiResourceCommand> deleteResourceUseCase,
         CancellationToken cancellation)
     {
         if (deleteResourceUseCase == null) throw new ArgumentNullException(nameof(deleteResourceUseCase));
 
         await deleteResourceUseCase.Process(new DeleteApiResourceRequest
         {
-            ApiResourceId = resourceId
+            ApiResourceName = resourceName
         }, cancellation);
         return Ok();
     }

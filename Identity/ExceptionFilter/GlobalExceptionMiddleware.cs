@@ -102,6 +102,7 @@ public class GlobalExceptionMiddleware
 
             // 404
             FileNotFoundException _ => Status404NotFound,
+            NotFoundException _ => Status404NotFound,
 
             // 400
             FormatException _ => Status400BadRequest,

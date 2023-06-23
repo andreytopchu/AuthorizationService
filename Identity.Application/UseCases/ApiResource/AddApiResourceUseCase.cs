@@ -35,12 +35,12 @@ public class AddApiResourceUseCase : IUseCase<IAddApiResourceCommand, ApiResourc
         await _dbContext.AddAsync(apiResource, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return await GetApiResourceById(apiResource.Id, cancellationToken);
+        return await GetApiResourceById(apiResource.Name, cancellationToken);
     }
 
-    private async Task<ApiResourceInfo> GetApiResourceById(int id, CancellationToken cancellationToken)
+    private async Task<ApiResourceInfo> GetApiResourceById(string name, CancellationToken cancellationToken)
     {
-        return await _dbContext.ApiResources.Where(new ApiResourceByIdSpecification(id))
+        return await _dbContext.ApiResources.Where(new ApiResourceByNameSpecification(name))
             .ProjectTo<ApiResourceInfo>(_mapper.ConfigurationProvider)
             .FirstAsync(cancellationToken);
     }

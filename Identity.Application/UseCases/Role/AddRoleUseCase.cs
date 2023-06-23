@@ -16,14 +16,14 @@ internal class AddRoleUseCase : IUseCase<IAddRoleCommand, RoleInfo>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRoleWriteRepository _roleWriteRepository;
-    private readonly IPolicyReadRepository _policyReadRepository;
+    private readonly IPolicyWriteRepository _policyWriteRepository;
     private readonly IMapper _mapper;
 
-    public AddRoleUseCase(IUnitOfWork unitOfWork, IRoleWriteRepository roleWriteRepository, IPolicyReadRepository policyReadRepository, IMapper mapper)
+    public AddRoleUseCase(IUnitOfWork unitOfWork, IRoleWriteRepository roleWriteRepository, IPolicyWriteRepository policyWriteRepository, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _roleWriteRepository = roleWriteRepository;
-        _policyReadRepository = policyReadRepository;
+        _policyWriteRepository = policyWriteRepository;
         _mapper = mapper;
     }
 
@@ -31,7 +31,7 @@ internal class AddRoleUseCase : IUseCase<IAddRoleCommand, RoleInfo>
     {
         if (arg == null) throw new ArgumentNullException(nameof(arg));
 
-        var policies = await _policyReadRepository.FilterAsync(new PolicyByIdsSpecification(arg.PolicyIds), cancellationToken);
+        var policies = await _policyWriteRepository.Read.FilterAsync(new PolicyByIdsSpecification(arg.PolicyIds), cancellationToken);
         if (policies.Length != arg.PolicyIds.Length)
         {
             throw new ThereAreUnacceptablePolicies(arg.PolicyIds);

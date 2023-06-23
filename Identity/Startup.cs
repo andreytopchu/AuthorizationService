@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Dex.Extensions;
-using Dex.SecurityToken.DistributedStorage;
+using Dex.SecurityToken.RedisStorage;
 using Dex.SecurityTokenProvider.Extensions;
 using Dex.SecurityTokenProvider.Options;
 using Identity.Application.Abstractions.Options;
@@ -36,6 +36,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Serilog;
+using StackExchange.Redis;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using IConfigurationProvider = AutoMapper.IConfigurationProvider;
 
@@ -44,7 +45,7 @@ namespace Identity;
 public class Startup
 {
     private const string RootPath = "/identity";
-    private const string ApplicationName = "Identity service";
+    private const string ApplicationName = "s.identity";
     private IWebHostEnvironment Environment { get; }
     private IConfiguration Configuration { get; }
 
@@ -93,7 +94,7 @@ public class Startup
         var provider = app.ApplicationServices.GetRequiredService<IConfigurationProvider>();
         provider.AssertConfigurationIsValid();
 
-        app.UseEndpoints(builder => { builder.MapDefaultControllerRoute(); });
+        app.UseEndpoints(builder => { builder.MapControllers(); });
 
         //swagger
         app.UseSwagger();
@@ -105,10 +106,11 @@ public class Startup
         // configuration
         services.AddOptions<IdentityOptions>().Configure(options => options.ProviderName = "identity-providerName");
         services.Configure<TokenOptions>(Configuration.GetSection(nameof(TokenOptions)));
-        services.Configure<EmailOptions>(Configuration.GetSection(nameof(TokenOptions)));
+        services.Configure<EmailOptions>(Configuration.GetSection(nameof(EmailOptions)));
+        services.Configure<RedisConfigurationOptions>(Configuration.GetSection(nameof(RedisConfigurationOptions)));
 
         // controllers
-        services.AddControllersWithViews().AddJsonOptions(options =>
+        services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -176,10 +178,9 @@ public class Startup
         services.AddSwaggerGen(ConfigureSwagger);
 
         //token provider
-        services.AddSecurityTokenProvider(Configuration.GetSection(nameof(TokenProviderOptions)));
-        services.RegisterDbContext<SecurityTokenDbContext>(Configuration.GetConnectionString("SecurityProviderConnection"));
+        services.AddSecurityTokenProvider<TokenRedisStorageProvider>(Configuration.GetSection(nameof(TokenProviderOptions)));
+        services.AddTokenRedisStorageServices();
         services.AddDataProtection().PersistKeysToDbContext<SecurityTokenDbContext>().SetApplicationName(ApplicationName);
-        services.AddDistributedTokenInfoStorage();
 
         // authentication
         services.Configure<AuthorizationSettings>(Configuration.GetSection(nameof(AuthorizationSettings)));
@@ -189,6 +190,9 @@ public class Startup
 
         // authorization
         services.AddAuthorization(ConfigureAuthorization);
+
+        // StackExchange redis cache
+        ConfigureRedisStackExchange(services);
     }
 
     private void InitServiceProvider(IServiceProvider serviceProvider)
@@ -326,5 +330,22 @@ public class Startup
                 Log.Information("Policy added - {PolicyName}", apiPolicy);
             }
         }
+    }
+
+    private void ConfigureRedisStackExchange(IServiceCollection services)
+    {
+        // StackExchange redis cache
+        var redisOptions = new RedisConfigurationOptions();
+        Configuration.GetSection(nameof(RedisConfigurationOptions)).Bind(redisOptions);
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.ConfigurationOptions = new ConfigurationOptions();
+            redisOptions.EndPoints.ForEach(x => options.ConfigurationOptions.EndPoints.Add(x));
+            if (redisOptions.Password != null) options.ConfigurationOptions.Password = redisOptions.Password;
+            if (redisOptions.CommandMap == nameof(CommandMap.Sentinel))
+            {
+                options.ConfigurationOptions.CommandMap = CommandMap.Sentinel;
+            }
+        });
     }
 }

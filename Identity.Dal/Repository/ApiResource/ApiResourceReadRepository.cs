@@ -23,10 +23,10 @@ public class ApiResourceReadRepository : IApiResourceReadRepository
         _mapper = mapper;
     }
 
-    public async Task<ApiResourceInfo?> GetById(int id, CancellationToken cancellationToken)
+    public async Task<ApiResourceInfo?> GetByResourceName(string name, CancellationToken cancellationToken)
     {
         return await _dbContext.ApiResources
-            .Where(new ApiResourceByIdSpecification(id))
+            .Where(new ApiResourceByNameSpecification(name))
             .ProjectTo<ApiResourceInfo>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -34,7 +34,7 @@ public class ApiResourceReadRepository : IApiResourceReadRepository
     public async Task<ApiResourceInfo[]> Get(IPaginationFilter filter, CancellationToken cancellationToken)
     {
         return await _dbContext.ApiResources
-            .OrderByDescending(x=>x.Created)
+            .OrderByDescending(x => x.Created)
             .FilterPage(filter.Page, filter.PageSize)
             .ProjectTo<ApiResourceInfo>(_mapper.ConfigurationProvider)
             .ToArrayAsync(cancellationToken);

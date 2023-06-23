@@ -21,7 +21,7 @@ internal class UpdateUserInvitationUseCase : IUseCase<IUpdateUserInvitationComma
 
     public async Task<UserInfo> Process(IUpdateUserInvitationCommand arg, CancellationToken cancellationToken)
     {
-        if (arg.IdentityUri == null) throw new ArgumentNullException(nameof(arg.IdentityUri));
+        if (arg == null) throw new ArgumentNullException(nameof(arg));
 
         var userDb = await _userWriteRepository.Read.SingleOrDefaultAsync(new UndeletedUserByIdSpecification(arg.UserId), cancellationToken);
 
@@ -33,7 +33,6 @@ internal class UpdateUserInvitationUseCase : IUseCase<IUpdateUserInvitationComma
         await _emailNotificationService.Process(new SendToUserActivationEmailRequest
         {
             User = userDb,
-            IdentityUri = arg.IdentityUri,
             EmailType = EmailType.RegisterUser
         }, cancellationToken);
 
@@ -48,8 +47,6 @@ internal class UpdateUserInvitationUseCase : IUseCase<IUpdateUserInvitationComma
     private class SendToUserActivationEmailRequest : ISendToUserActivationEmailCommand
     {
         public Domain.Entities.User User { get; init; } = null!;
-        public IIdentityUriCommand? IdentityUri { get; set; }
-
         public EmailType EmailType { get; init; }
     }
 }

@@ -17,17 +17,14 @@ internal class SendToUserRecoveryPasswordEmailUseCase : IUseCase<ISendToUserReco
 
     public async Task Process(ISendToUserRecoveryEmailCommand arg, CancellationToken cancellationToken)
     {
-        if (arg.IdentityUri != null) await SendRegistryEmailByTypeAsync(arg.IdentityUri.Uri, arg.EmailType, arg.User, cancellationToken);
-
-        await Task.CompletedTask;
+        await SendRegistryEmailByTypeAsync(arg.EmailType, arg.User, cancellationToken);
     }
 
-    private async Task SendRegistryEmailByTypeAsync(Uri baseUri, EmailType emailType, Domain.Entities.User user, CancellationToken cancellation)
+    private async Task SendRegistryEmailByTypeAsync(EmailType emailType, Domain.Entities.User user, CancellationToken cancellation)
     {
-        if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
         if (user == null) throw new ArgumentNullException(nameof(user));
 
-        var (subject, body) = await _emailMessageBuilderByEmailType.Build(baseUri, emailType, user, cancellation);
+        var (subject, body) = await _emailMessageBuilderByEmailType.Build(emailType, user, cancellation);
 
         await _notificationClient.SendEmail(new[] {user.Email}, subject, body, cancellationToken: cancellation);
     }

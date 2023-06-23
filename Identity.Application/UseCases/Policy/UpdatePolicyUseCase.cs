@@ -65,6 +65,6 @@ public class UpdatePolicyUseCase : IUseCase<IUpdatePolicyCommand, PolicyInfo>
 
     private Task<PolicyInfo> GetPolicyById(Guid id, CancellationToken cancellationToken)
     {
-        return _policyWriteRepository.Read.GetByIdAsync<PolicyInfo>(id, cancellationToken);
+        return _policyWriteRepository.Read.GetByIdAsync<PolicyInfo>(id, cancellationToken, policy => policy.ApiResources);
     }
 }

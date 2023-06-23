@@ -6,8 +6,8 @@ namespace Identity.Domain.Exceptions;
 /// </summary>
 public sealed class ApiResourceNotFoundException : NotFoundException
 {
-    public ApiResourceNotFoundException(int apiResourceId)
+    public ApiResourceNotFoundException(string apiResourceName)
     {
-        Data[nameof(apiResourceId)] = apiResourceId;
+        Data[nameof(apiResourceName)] = apiResourceName;
     }
 }

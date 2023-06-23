@@ -5,6 +5,6 @@ namespace Identity.Application.Abstractions.Repositories.ApiResource;
 
 public interface IApiResourceReadRepository
 {
-    Task<ApiResourceInfo?> GetById(int id, CancellationToken cancellationToken);
+    Task<ApiResourceInfo?> GetByResourceName(string name, CancellationToken cancellationToken);
     Task<ApiResourceInfo[]> Get(IPaginationFilter filter, CancellationToken cancellationToken);
 }

@@ -6,6 +6,7 @@ using Identity.Application.Abstractions.UseCases;
 using Identity.Dal;
 using Identity.Domain.Exceptions;
 using Identity.Domain.Specifications.Client;
+using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,7 @@ public class UpdateClientUseCase : IUseCase<IUpdateClientCommand, ClientInfo>
             .Include(x => x.ClientSecrets)
             .Include(x => x.AllowedGrantTypes)
             .Include(x => x.AllowedScopes)
+            .Include(x => x.Claims)
             .FirstOrDefaultAsync(cancellationToken);
         if (clientDb is null)
         {
@@ -39,7 +41,7 @@ public class UpdateClientUseCase : IUseCase<IUpdateClientCommand, ClientInfo>
 
         //update secrets
         var clientSecrets = clientDb.ClientSecrets.Where(x => arg.ApiSecrets.Contains(x.Value)).ToList();
-        clientSecrets.AddRange(arg.ApiSecrets.Except(clientSecrets.Select(cs => cs.Value)).Select(x => new ClientSecret {Value = x}));
+        clientSecrets.AddRange(arg.ApiSecrets.Except(clientSecrets.Select(cs => cs.Value)).Select(x => new ClientSecret {Value = x.ToSha256()}));
         clientDb.ClientSecrets = clientSecrets;
 
         //update grant types

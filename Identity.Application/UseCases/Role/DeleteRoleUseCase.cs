@@ -47,6 +47,7 @@ internal class DeleteRoleUseCase : IUseCase<IDeleteRoleCommand>
 
         dbRole.Policies.ForEach(x => x.Name.ThrowIfPolicyIsFullAccess());
 
+        dbRole.Policies = new List<Domain.Entities.Policy>();
         dbRole.Name = $"{dbRole.Id}.deleted#{dbRole.Name}";
         dbRole.DeletedUtc = _systemClock.UtcNow.UtcDateTime;
 

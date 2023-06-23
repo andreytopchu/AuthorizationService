@@ -12,10 +12,9 @@ public interface IEmailMessageBuilderByEmailType
     /// <summary>
     /// Построить сообщение письма электронной почты
     /// </summary>
-    /// <param name="baseUri"></param>
     /// <param name="user"></param>
     /// <param name="emailType"></param>
     /// <param name="cancellation"></param>
     /// <returns></returns>
-    public Task<(string subject, string body)> Build(Uri baseUri, EmailType emailType, Domain.Entities.User user, CancellationToken cancellation);
+    public Task<(string subject, string body)> Build(EmailType emailType, Domain.Entities.User user, CancellationToken cancellation);
 }

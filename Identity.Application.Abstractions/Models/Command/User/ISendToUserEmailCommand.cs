@@ -9,8 +9,6 @@ public interface ISendToUserEmailCommand : IUseCaseArg
 {
     Domain.Entities.User User { get; }
 
-    IIdentityUriCommand? IdentityUri { get; set; }
-
     public EmailType EmailType { get; init; }
 }
 

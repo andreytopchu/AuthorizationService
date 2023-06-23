@@ -4,5 +4,5 @@ namespace Identity.Models.Requests.ApiResource;
 
 public class DeleteApiResourceRequest: IDeleteApiResourceCommand
 {
-    public int ApiResourceId { get; init; }
+    public string ApiResourceName { get; init; }
 }

@@ -33,7 +33,7 @@ public class PolicyController : BaseController
     {
         if (readRepository == null) throw new ArgumentNullException(nameof(readRepository));
 
-        var result = await readRepository.GetByIdAsync<PolicyInfo>(id, cancellationToken);
+        var result = await readRepository.GetByIdAsync<PolicyInfo>(id, cancellationToken, policy => policy.ApiResources);
         return Ok(result);
     }
 

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 
 namespace Identity.Application.UseCases.User;
 
-internal class UserRestorePasswordUseCase : IUseCase<IAcceptUserCommand>
+internal class UserRestorePasswordUseCase : IUseCase<IUserRestorePasswordCommand>
 {
     private readonly IUserReadRepository _userReadRepository;
     private readonly IPasswordHashGenerator _passwordHashGenerator;
@@ -33,7 +33,7 @@ internal class UserRestorePasswordUseCase : IUseCase<IAcceptUserCommand>
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public async Task Process(IAcceptUserCommand arg, CancellationToken cancellationToken)
+    public async Task Process(IUserRestorePasswordCommand arg, CancellationToken cancellationToken)
     {
         if (arg.Token == null) throw new ArgumentNullException(nameof(arg));
 

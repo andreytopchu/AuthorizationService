@@ -13,13 +13,12 @@ public class ApiResourcePolicyEntityTypeConfiguration : IEntityTypeConfiguration
 
         builder.ToTable(nameof(ApiResourcePolicy));
 
-        builder.Property(e => e.Id);
         builder.Property(e => e.PolicyName);
         builder.Property(e => e.ResourceName);
         builder.Property(e => e.PolicyId);
 
-        builder.HasKey(e => e.Id);
+        builder.HasKey(e => new {e.PolicyId, e.ResourceName});
 
-        builder.HasOne(e => e.Policy).WithMany(e => e.ApiResources).HasForeignKey(x=>x.PolicyId);
+        builder.HasOne(e => e.Policy).WithMany(e => e.ApiResources).HasForeignKey(x => x.PolicyId);
     }
 }

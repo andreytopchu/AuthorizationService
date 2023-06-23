@@ -1,6 +1,7 @@
 using AutoMapper;
 using Identity.Application.Abstractions.Models.Command.Client;
 using Identity.Application.Abstractions.Models.Query.Client;
+using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
 using Client = IdentityServer4.EntityFramework.Entities.Client;
@@ -14,7 +15,7 @@ public class ClientProfile : Profile
     {
         CreateMap<IAddClientCommand, Client>(MemberList.Source)
             .ForMember(x => x.ClientSecrets,
-                expression => expression.MapFrom(x => x.ApiSecrets.Select(s => new ClientSecret {Value = s}).ToArray()))
+                expression => expression.MapFrom(x => x.ApiSecrets.Select(s => new ClientSecret {Value = s.ToSha256()}).ToArray()))
             .ForMember(x => x.AccessTokenType, expression => expression.MapFrom(x => (int) x.AccessTokenType))
             .ForMember(x => x.AllowedGrantTypes,
                 expression => expression.MapFrom(x => x.AllowedGrantTypes.Select(g => new ClientGrantType {GrantType = g}).ToArray()))

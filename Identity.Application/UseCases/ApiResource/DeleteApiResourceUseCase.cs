@@ -19,11 +19,11 @@ public class DeleteApiResourceUseCase : IUseCase<IDeleteApiResourceCommand>
     {
         if (arg == null) throw new ArgumentNullException(nameof(arg));
 
-        var apiResource = await _dbContext.ApiResources.FirstOrDefaultAsync(x => x.Id == arg.ApiResourceId, cancellationToken);
+        var apiResource = await _dbContext.ApiResources.FirstOrDefaultAsync(x => x.Name == arg.ApiResourceName, cancellationToken);
 
         if (apiResource is null)
         {
-            throw new ApiResourceNotFoundException(arg.ApiResourceId);
+            throw new ApiResourceNotFoundException(arg.ApiResourceName);
         }
 
         _dbContext.Remove(apiResource);
