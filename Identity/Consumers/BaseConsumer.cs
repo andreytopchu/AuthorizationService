@@ -1,8 +1,10 @@
-﻿using Identity.Application.Abstractions.Extensions;
+﻿using System;
+using System.Threading.Tasks;
+using Identity.Application.Abstractions.Extensions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-namespace Identity.Application.Consumers
+namespace Identity.Consumers
 {
     public abstract class BaseConsumer<TMessage> : IConsumer<TMessage>
         where TMessage : class

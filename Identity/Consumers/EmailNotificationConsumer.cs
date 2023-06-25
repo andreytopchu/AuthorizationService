@@ -1,11 +1,13 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Identity.Application.Abstractions.Models.Command.Email;
 using Identity.Application.Abstractions.Services;
 using Identity.Domain.Exceptions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-namespace Identity.Application.Consumers
+namespace Identity.Consumers
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     internal sealed class EmailNotificationConsumer : BaseConsumer<ISendEmailCommand>

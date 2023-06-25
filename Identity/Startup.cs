@@ -6,11 +6,14 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Dex.Extensions;
+using Dex.MassTransit.Rabbit;
 using Dex.SecurityToken.RedisStorage;
 using Dex.SecurityTokenProvider.Extensions;
 using Dex.SecurityTokenProvider.Options;
+using Identity.Application.Abstractions.Models.Command.Email;
 using Identity.Application.Abstractions.Options;
 using Identity.Application.Extensions;
+using Identity.Consumers;
 using Identity.Dal;
 using Identity.Dal.Extensions;
 using Identity.ExceptionFilter;
@@ -21,6 +24,7 @@ using Identity.Services.Extensions;
 using Identity.Swagger;
 using IdentityModel.AspNetCore.AccessTokenValidation;
 using IdentityModel.AspNetCore.OAuth2Introspection;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -108,6 +112,7 @@ public class Startup
         services.Configure<TokenOptions>(Configuration.GetSection(nameof(TokenOptions)));
         services.Configure<EmailOptions>(Configuration.GetSection(nameof(EmailOptions)));
         services.Configure<RedisConfigurationOptions>(Configuration.GetSection(nameof(RedisConfigurationOptions)));
+        services.Configure<RabbitMqOptions>(Configuration.GetSection(nameof(RabbitMqOptions)));
 
         // controllers
         services.AddControllers().AddJsonOptions(options =>
@@ -178,6 +183,7 @@ public class Startup
         services.AddSwaggerGen(ConfigureSwagger);
 
         //token provider
+        services.RegisterDbContext<SecurityTokenDbContext>(Configuration.GetConnectionString("SecurityProviderConnection"));
         services.AddSecurityTokenProvider<TokenRedisStorageProvider>(Configuration.GetSection(nameof(TokenProviderOptions)));
         services.AddTokenRedisStorageServices();
         services.AddDataProtection().PersistKeysToDbContext<SecurityTokenDbContext>().SetApplicationName(ApplicationName);
@@ -193,6 +199,20 @@ public class Startup
 
         // StackExchange redis cache
         ConfigureRedisStackExchange(services);
+
+        // masstransit
+        services.AddMassTransit(x =>
+        {
+            ConfigureConsumer<EmailNotificationConsumer>(x);
+
+            // register send endpoints
+            x.RegisterBus((context, configurator) =>
+            {
+                context.RegisterSendEndPoint<ISendEmailCommand>();
+
+                context.RegisterReceiveEndpoint<EmailNotificationConsumer, ISendEmailCommand>(configurator);
+            });
+        });
     }
 
     private void InitServiceProvider(IServiceProvider serviceProvider)
@@ -300,7 +320,7 @@ public class Startup
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(claimType);
 
-                    var fullPolicyName = string.Join('_', AuthorizationSettings.ApiPolicies, apiPolicy);
+                    var fullPolicyName = string.Join('_', AuthorizationSettings.ApiResource, apiPolicy);
                     //write включает read
                     if (fullPolicyName.EndsWith(".read", StringComparison.InvariantCulture))
                     {
@@ -346,6 +366,16 @@ public class Startup
             {
                 options.ConfigurationOptions.CommandMap = CommandMap.Sentinel;
             }
+        });
+    }
+
+    private static void ConfigureConsumer<TConsumer>(IBusRegistrationConfigurator serviceCollectionBusConfigurator)
+        where TConsumer : class, IConsumer
+    {
+        serviceCollectionBusConfigurator.AddConsumer<TConsumer>(configurator =>
+        {
+            configurator.UseConcurrencyLimit(1);
+            configurator.UseMessageRetry(retryConfigurator => retryConfigurator.Interval(10, 10.Seconds()));
         });
     }
 }

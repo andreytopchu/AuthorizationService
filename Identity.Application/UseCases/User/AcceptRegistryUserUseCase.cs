@@ -8,6 +8,7 @@ using Identity.Application.Abstractions.Repositories.User;
 using Identity.Application.Abstractions.Services;
 using Identity.Application.Abstractions.UseCases;
 using Identity.Domain.Exceptions;
+using Identity.Domain.Specifications;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 
@@ -15,17 +16,17 @@ namespace Identity.Application.UseCases.User;
 
 internal class AcceptRegistryUserUseCase : IUseCase<IAcceptUserCommand>
 {
-    private readonly IUserReadRepository _userReadRepository;
+    private readonly IUserWriteRepository _userWriteRepository;
     private readonly IPasswordHashGenerator _passwordHashGenerator;
     private readonly ISystemClock _systemClock;
     private readonly IOptions<TokenOptions> _tokenOptions;
     private readonly ITokenProvider _tokenProvider;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AcceptRegistryUserUseCase(IUserReadRepository userReadRepository, IPasswordHashGenerator passwordHashGenerator, ISystemClock systemClock,
+    public AcceptRegistryUserUseCase(IUserWriteRepository userWriteRepository, IPasswordHashGenerator passwordHashGenerator, ISystemClock systemClock,
         IOptions<TokenOptions> tokenOptions, ITokenProvider tokenProvider, IUnitOfWork unitOfWork)
     {
-        _userReadRepository = userReadRepository ?? throw new ArgumentNullException(nameof(userReadRepository));
+        _userWriteRepository = userWriteRepository ?? throw new ArgumentNullException(nameof(userWriteRepository));
         _passwordHashGenerator = passwordHashGenerator ?? throw new ArgumentNullException(nameof(passwordHashGenerator));
         _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
         _tokenOptions = tokenOptions ?? throw new ArgumentNullException(nameof(tokenOptions));
@@ -50,7 +51,8 @@ internal class AcceptRegistryUserUseCase : IUseCase<IAcceptUserCommand>
     {
         var tokenData = await _tokenProvider.GetTokenDataFromUrlAsync<RegisterUserToken>(token, cancellationToken: cancellation);
 
-        var userDb = await _userReadRepository.GetUserByIdAsync<Domain.Entities.User>(tokenData.UserId, cancellation);
+        var userDb = await _userWriteRepository.Read.FirstOrDefaultAsync(
+            new EntityByKeySpecification<Domain.Entities.User, Guid>(tokenData.UserId), cancellation);
         if (userDb is not {DeletedUtc: null})
             throw new EntityNotFoundException<Domain.Entities.User>(tokenData.UserId);
 

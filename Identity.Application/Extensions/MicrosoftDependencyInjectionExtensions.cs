@@ -1,8 +1,6 @@
 ﻿using Dex.Cap.Outbox.Interfaces;
-using Dex.MassTransit.Rabbit;
 using Identity.Application.Abstractions.Models.Command.ApiResource;
 using Identity.Application.Abstractions.Models.Command.Client;
-using Identity.Application.Abstractions.Models.Command.Email;
 using Identity.Application.Abstractions.Models.Command.Policy;
 using Identity.Application.Abstractions.Models.Command.Role;
 using Identity.Application.Abstractions.Models.Command.User;
@@ -19,7 +17,6 @@ using Identity.Application.UseCases.Client;
 using Identity.Application.UseCases.Policy;
 using Identity.Application.UseCases.Role;
 using Identity.Application.UseCases.User;
-using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Identity.Application.Extensions;
@@ -57,9 +54,6 @@ public static class MicrosoftDependencyInjectionExtensions
 
         // outbox
         services.AddScoped<IOutboxMessageHandler<UserTokenInvalidationIntegrationEvent>, InvalidateUserTokenHandler>();
-
-        //massTransit
-        services.AddMassTransit(x => { x.RegisterBus((context, _) => { context.RegisterSendEndPoint<ISendEmailCommand>(); }); });
 
         return services;
     }

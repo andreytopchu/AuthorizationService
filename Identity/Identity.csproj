@@ -64,7 +64,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Identity.Application\Identity.Application.csproj" />
         <ProjectReference Include="..\Identity.Dal\Identity.Dal.csproj" />
-        <ProjectReference Include="..\Identity.Domain.Contracts\Identity.Domain.Contracts.csproj" />
         <ProjectReference Include="..\Identity.Services\Identity.Services.csproj" />
     </ItemGroup>
 
