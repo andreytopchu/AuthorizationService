@@ -7,7 +7,6 @@ using AutoMapper.QueryableExtensions;
 using Identity.Abstractions;
 using Identity.Application.Abstractions.Repositories.User;
 using Identity.Domain.Exceptions;
-using Identity.Domain.Specifications;
 using Identity.Domain.Specifications.User;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +25,7 @@ public class UserReadRepository : GenericReadRepository<Domain.Entities.User, Gu
 
     public async Task<TInfo> GetUserByIdAsync<TInfo>(Guid userId, CancellationToken cancellationToken)
     {
-        var userInfo = await QueryBy(new UndeleteEntitySpecification<Domain.Entities.User>())
+        var userInfo = await QueryBy(new UndeletedUserByIdSpecification(userId))
             .ProjectTo<TInfo>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
 

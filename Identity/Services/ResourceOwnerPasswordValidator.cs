@@ -61,7 +61,7 @@ public class ResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
             {
                 context.Result.CustomResponse = new Dictionary<string, object>
                 {
-                    { nameof(result.NoUntil), result.NoUntil.ToString() }
+                    {nameof(result.NoUntil), result.NoUntil.ToString()}
                 };
             }
         }

@@ -4,4 +4,4 @@
 2. Сгенерировать новые секреты, для Identity  
    Для этого идем в DevelopmentTests.GenSecrets(), содержимое вывода вставить в SecretConfig
    После изменения SecretConfig изменить конфиги сервисов
-        Например Admin.appsettings.json > "ApiResourceSecret": "AA6F7FEC-8793-4B03-8BAA-BF8EDCF9F787", взять значение из нового конфига.
+        Например Service.appsettings.json > "ApiResourceSecret": "E88D8933-E5F3-4FF0-AE28-A33DA67244E5", взять значение из нового конфига.

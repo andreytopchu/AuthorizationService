@@ -12,6 +12,10 @@
   &lt;PhysicalFolder Path="C:\Users\andre\.nuget\packages\dex.cap.common.ef\2.3.6" Loaded="True" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\andre\.nuget\packages\dex.securitytokenprovider\2.2.6\lib\net6.0\Dex.SecurityTokenProvider.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\andre\.nuget\packages\dex.pagination\2.1.0\lib\net6.0\Dex.Pagination.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\andre\.nuget\packages\identitymodel.aspnetcore.oauth2introspection\6.1.0\lib\net6.0\IdentityModel.AspNetCore.OAuth2Introspection.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\andre\.nuget\packages\dex.extensions\1.0.11\lib\netstandard2.1\Dex.Extensions.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\andre\.nuget\packages\serilog\2.10.0\lib\netstandard2.1\Serilog.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\andre\.nuget\packages\authorizationservice.microsoftdependencyinjection\1.0.1\lib\net6.0\AuthorizationService.MicrosoftDependencyInjection.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=60304ff6_002D3b25_002D42eb_002D891b_002Db64223bcae8e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GenerateSensitivityTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
